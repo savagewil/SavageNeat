@@ -3,6 +3,13 @@ from typing import List, Type, Callable
 import Net
 import numpy
 import pygame
+import enum
+
+
+class SimulationState(enum):
+    FINISHED = 0
+    NOT_STARTED = 1
+    RUNNING = 2
 
 
 class Simulation:
@@ -37,5 +44,5 @@ class Simulation:
         pass
 
     @abstractmethod
-    def get_score(self) -> float:
+    def get_score(self) -> SimulationState:
         pass
