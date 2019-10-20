@@ -116,7 +116,7 @@ class NeatLinearNet(Net):
         any(map(draw_circle, self.out_screen_range, self.out_color_range, self.out_range_loc,
                 self.out_radius_range))
 
-    def set_in(self, array: List[int]):
+    def set_in(self, array: List[float]):
         array = array + [1.0]
         assert len(array) == self.in_dem
         self.input_nodes = numpy.array(array, ndmin=2)

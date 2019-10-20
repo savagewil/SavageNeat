@@ -21,7 +21,7 @@ class Net:
         self.color_formula: Callable = color_formula_param
 
     @abstractmethod
-    def set_in(self, array: List[int]):
+    def set_in(self, array: List[float]):
         pass
 
     @abstractmethod
