@@ -4,6 +4,15 @@ import Simulation
 
 class Network:
     def __init__(self, weight_matrix, enabled_matrix, input_size, output_size, middle_size, cache_size=0):
+        """
+
+        :param weight_matrix:
+        :param enabled_matrix:
+        :param input_size:
+        :param output_size:
+        :param middle_size:
+        :param cache_size:
+        """
         self.neural_net: NeatLinearNet = NeatLinearNet.NeatLinearNet(input_size, output_size, middle_size,
                                                                      weight_matrix,
                                                                      enabled_matrix)
@@ -11,6 +20,11 @@ class Network:
         self.cache = {}
 
     def run(self, input_values: tuple[float]) -> tuple[float]:
+        """
+
+        :param input_values:
+        :return:
+        """
         if input_values in self.cache:
             out = self.cache[input_values]
             self.cache.pop(input_values)
@@ -27,6 +41,11 @@ class Network:
             return out
 
     def execute(self, simulation: Simulation):
+        """
+
+        :param simulation:
+        :return:
+        """
         while simulation.get_state() != Simulation.SimulationState.FINISHED:
             input_data = simulation.get_data()
             processed_data = self.run(input_data)
