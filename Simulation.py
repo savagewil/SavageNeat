@@ -14,35 +14,63 @@ class SimulationState(enum):
 
 class Simulation:
     def __init__(self,
-                 input_size: int,
+                 controls_size: int,
                  data_size: int):
-        self.input_size = input_size
+        self.controls_size = controls_size
         self.data_size = data_size
         self.time_count = 0
 
     def restart(self):
+        """
+        Restarts the simulation
+        If the simulation changes over time,
+        this function should return it to the original state.
+        """
         self.time_count = 0
 
-    @abstractmethod
-    def get_data_size(self):
+    def get_data_size(self) -> int:
+        """
+        Get the size of the data the simulation passes to an outside agent
+        :return: The length of the data array
+        """
         return self.data_size
 
-    @abstractmethod
-    def get_input_size(self):
-        return self.input_size
+    def get_controls_size(self) -> int:
+        """
+        Get the size of the controls the simulation can receive
+        :return: The length of the controls array
+        """
+        return self.controls_size
 
     @abstractmethod
-    def apply_input(self, input_values: tuple[float]):
+    def apply_controls(self, controls: tuple[float]):
+        """
+        Receives an array of values representing the controls
+        Uses that array to apply controls and change the simulation
+        :param controls: A tuple of floats, representing the controls
+        """
         pass
 
     @abstractmethod
     def get_data(self) -> tuple[float]:
+        """
+        Gets a tuple of floats representing the data that the simulation provides to outside agents
+        :return: a tuple of floats representing the data that the simulation provides to outside agents
+        """
         pass
 
     @abstractmethod
-    def get_state(self) -> int:
+    def get_state(self) -> SimulationState:
+        """
+        Returns the state of the current simulation
+        :return: The state of the current simulation
+        """
         pass
 
     @abstractmethod
-    def get_score(self) -> SimulationState:
+    def get_score(self) -> float:
+        """
+        Gets a score from the current simulation
+        :return: The score
+        """
         pass
