@@ -13,9 +13,17 @@ class SimulationState(enum):
 
 
 class Simulation:
+
     def __init__(self,
                  controls_size: int,
-                 data_size: int):
+                 data_size: int,
+                 visuals: bool = False):
+        """
+        A class for representing a simulation
+        :param controls_size: The length of the controls the simulation will use
+        :param data_size: The length of the data the simulation passes to outside agents
+        :param visuals: A boolean to control whether the simulation is displayed or not
+        """
         self.controls_size = controls_size
         self.data_size = data_size
         self.time_count = 0
