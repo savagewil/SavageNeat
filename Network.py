@@ -1,11 +1,13 @@
 from typing import Tuple
-
-import NeatLinearNet
+import numpy as np
+from NeatLinearNet import NeatLinearNet
 import Simulation
 
 
 class Network:
-    def __init__(self, weight_matrix, enabled_matrix, input_size, output_size, middle_size, cache_size=0, batch_id=None):
+    def __init__(self, weight_matrix: np.array, enabled_matrix: np.array, input_size: int, output_size: int,
+                 middle_size: int, cache_size: int = 0, batch_id: int = None):
+
         """
         The Network represents a Neural Network
         Can have a cache to save answers
@@ -16,11 +18,11 @@ class Network:
         :param middle_size: The number of hidden nodes in the network
         :param cache_size: The size, in cache entries, of the cache for saving answers
         """
-        self.neural_net: NeatLinearNet = NeatLinearNet.NeatLinearNet(input_size, output_size, middle_size,
-                                                                     weight_matrix, enabled_matrix)
-        self.cache_size = cache_size
-        self.cache = {}
-        self.batch_id = batch_id
+        self.neural_net: NeatLinearNet = NeatLinearNet(input_size, output_size, middle_size,
+                                                       weight_matrix, enabled_matrix)
+        self.cache_size: int = cache_size
+        self.cache: dict = {}
+        self.batch_id: int = batch_id
 
     def run(self, input_values: Tuple[float]) -> Tuple[float]:
         """
@@ -57,7 +59,7 @@ class Network:
             simulation.apply_controls(processed_data, batch_id=self.batch_id)
         return simulation.get_score()
 
-    def set_batch_id(self, batch_id):
+    def set_batch_id(self, batch_id: int):
         """
         Sets the batch id of the network
         :param batch_id: The batch id to change the current batch id to
