@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import List, Tuple
 from Gene import Gene
 from Network import Network
@@ -48,6 +49,7 @@ class Genome:
         self.raw_fitness = 0
 
     def add_node(self, gene_pool: GenePool) -> Genome:
+        spliting_gene = random.choice(self.genes)
         pass
 
     def add_connection(self, gene_pool: GenePool) -> Genome:

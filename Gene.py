@@ -129,3 +129,26 @@ class Gene:
             return self.innovation_number >= other.innovation_number
         else:
             raise TypeError("Greater than or equal is not supported between Gene and %s" % (str(type(other))))
+
+    def structure_hash(self):
+        """
+        Uses the structure to produce a hash that is unique for each structure
+        :return: a hash that is unique for each structure
+        """
+        hash = 0
+        shift = 1
+        in_node = self.in_node
+        out_node = self.out_node
+        while in_node > 0 or out_node> 0:
+            hash += shift * (in_node % 10) + shift * 10 * (out_node % 10)
+            in_node = in_node // 10
+            out_node = out_node // 10
+            shift *= 100
+        return hash
+
+    def __hash__(self):
+        """
+        Return a hash that is unique when the gene has a unique innovation number
+        :return: a unique hash
+        """
+        return self.innovation_number
