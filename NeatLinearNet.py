@@ -120,6 +120,7 @@ class NeatLinearNet(Net):
         array = array + [1.0]
         assert len(array) == self.in_dem
         self.input_nodes = numpy.array(array, ndmin=2)
+        self.node_values = numpy.zeros((1, self.middle_dem + self.out_dem))
 
     def get_out(self):
         # print(self.weights.shape)

@@ -2,9 +2,12 @@ from __future__ import annotations
 from Conditions import Conditions
 import random
 
+from GenePool import GenePool
+
 
 class Gene:
-    def __init__(self, weight: float, in_node: int, out_node: int, innovation_number: int, enabled: bool = True):
+    def __init__(self, weight: float, in_node: int, out_node: int, innovation_number: int,
+                 enabled: bool = True, gene_pool: GenePool = None):
         """
         The gene class represents a connection gene, a connection between two nodes in a Network
         :param weight: The weight is the strength of the connection
@@ -18,6 +21,8 @@ class Gene:
         self.out_node: int = out_node
         self.innovation_number: int = innovation_number
         self.enabled: bool = enabled
+        if gene_pool:
+            self.innovation_number = gene_pool.get_innovation_number(self.to_structure_gene())
 
     def mutate(self, conditions: Conditions) -> Gene:
         """
