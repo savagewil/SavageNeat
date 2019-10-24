@@ -7,21 +7,25 @@ from NeatErrors import NetworkFullError
 from Network import Network
 from GenePool import GenePool
 from Conditions import Conditions
-import numpy as np
+
+from processing_genes import process_genes
+
 
 class Genome:
     def __init__(self, genes: List[Gene], input_size: int, output_size: int):
         """
-
-        :param genes:
-        :param input_size:
-        :param output_size:
+        The genome class is a collection of genes which represents a network
+        :param genes: The genes of the genome
+        :param input_size: The number of input nodes
+        :param output_size: The number of output nodes
         """
         self.genes: List[Gene] = genes  # its is assumed that the genes will be in sorted order
         weight_matrix, enabled_matrix, middle_size, middles = process_genes(self.genes, input_size, output_size)
 
         self.network: Network = Network(weight_matrix, enabled_matrix, input_size, output_size, middle_size)
         self.raw_fitness: float = 0
+        self.input_size: int = input_size
+        self.output_size: int = output_size
         self.start_nodes: List[int] = list(range(input_size))
         self.middle_nodes: List[int] = middles
         self.end_nodes: List[int] = list(range(-output_size, 0))
@@ -121,13 +125,53 @@ class Genome:
         comparison += (len(self.genes) - self_index + len(other.genes) - other_index) * conditions.excess_coefficient
         return comparison
 
-    def breed(self, other: Genome) -> Genome:
+    def breed(self, other: Genome, gene_pool: GenePool, conditions: Conditions) -> Genome:
         """
         Breeds two Genomes to create a third child genome
         :param other: A genome to breed with the current Genome
+        :param gene_pool: The GenePool allows new mutations to be tracked allows retrieval of new innovation numbers
         :return: A new genome created by breeding the two given genomes
+        :param conditions: The conditions the breeding is occuring in, controls the rate of being disabled
         """
-        pass
+        self_index = 0
+        other_index = 0
+        new_genes = []
+        while len(self.genes) > self_index and len(other.genes) > other_index:
+            if self.genes[self_index] == other.genes[other_index]:
+                new_gene = self.genes[self_index].copy()
+                new_gene.weight = random.choice([self.genes[self_index].weight, other.genes[self_index].weight])
+                new_gene.enabled = ((self.genes[self_index].enabled and other.genes[self_index].enabled) or
+                                    random.random() > conditions.disable_probability)
+                new_genes.append(new_gene)
+                self_index += 1
+                other_index += 1
+            elif self.genes[self_index] < other.genes[other_index]:
+                if self.raw_fitness >= other.raw_fitness:
+                    new_gene = self.genes[self_index].copy()
+                    new_gene.enabled = (self.genes[self_index].enabled or
+                                        random.random() > conditions.disable_probability)
+                    new_genes.append(new_gene)
+                self_index += 1
+            else:
+                if self.raw_fitness <= other.raw_fitness:
+                    new_gene = other.genes[self_index].copy()
+                    new_gene.enabled = (other.genes[self_index].enabled or
+                                        random.random() > conditions.disable_probability)
+                    new_genes.append(new_gene)
+                other_index += 1
+
+        for i in range(len(new_genes)):
+            new_genes[i] = new_genes[i].mutate(conditions)
+
+        new_genome = Genome(new_genes, self.input_size, self.output_size)
+
+        if random.random() < conditions.connection_probability:
+            new_genome = new_genome.add_connection(gene_pool, conditions)
+
+        if random.random() < conditions.node_probability:
+            new_genome = new_genome.add_node(gene_pool)
+
+        return new_genome
 
     def copy(self) -> Genome:
         """
