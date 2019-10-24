@@ -9,52 +9,6 @@ from GenePool import GenePool
 from Conditions import Conditions
 import numpy as np
 
-
-def process_genes(genes: List[Gene], input_size: int, output_size: int, gene_pool: GenePool) \
-        -> Tuple[np.array, np.array, int, List[int]]:
-    """
-
-    :param genes:
-    :param input_size:
-    :param output_size:
-    :param gene_pool:
-    :return:
-    """
-    nodes = set()
-    middles = set()
-    for connection_gene in genes:
-        nodes.add(connection_gene.in_node)
-        nodes.add(connection_gene.out_node)
-
-        if connection_gene.in_node >= input_size:
-            middles.add(connection_gene[1])
-
-        if connection_gene.out_node > 0:
-            middles.add(connection_gene[2])
-
-    list(map(nodes.add, range(input_size)))
-    list(map(nodes.add, range(-output_size, 0)))
-    nodes = list(nodes)
-    nodes_with_depth = list(map(lambda node: (gene_pool.get_depth(node), node), nodes))
-    nodes.sort()
-    nodes_with_depth.sort()
-    node_indices = {}
-    for i in range(len(nodes_with_depth)):
-        node_indices[nodes_with_depth[i][1]] = i
-
-    middle_size = len(middles)
-    enabled_matrix = np.zeros((input_size + middle_size, middle_size + output_size), dtype=bool)
-    weight_matrix = np.zeros((input_size + middle_size, middle_size + output_size))
-
-    for gene in genes:
-        if gene.enabled:
-            start = node_indices[gene.in_node]
-            end = node_indices[gene.out_node] - input_size
-            enabled_matrix[start][end] = True
-            weight_matrix[start][end] = gene.weight
-    return weight_matrix, enabled_matrix, middle_size, list(middles)
-
-
 class Genome:
     def __init__(self, genes: List[Gene], input_size: int, output_size: int):
         """
@@ -74,15 +28,25 @@ class Genome:
 
     def add_node(self, gene_pool: GenePool) -> Genome:
         """
+        Creates a new genome. Splits a randomly selected connection into two connections which share a new node
 
-        :param gene_pool:
-        :return:
+        The connection which starts at the original connections in_node is the in connection
+        The connection which ends at the original connections out_node is the out connection
+
+        Of the new connections, the in connection will have a weight of one
+        The out connection will have the original connections weight
+
+        The original connection is disabled
+
+        :param gene_pool: The GenePool which provides the innovation numbers for the new connections,
+         and the node number for the new node
+        :return: Returns a copy of the current genome, but with a connection split with a new node added
         """
         splitting_gene: Gene = random.choice(self.genes)
         new_node = gene_pool.get_node_number(splitting_gene)
 
-        in_gene = Gene(splitting_gene.weight, splitting_gene.in_node, new_node, 0, gene_pool=gene_pool)
-        out_gene = Gene(1.0, new_node, splitting_gene.out_node, 0, gene_pool=gene_pool)
+        in_gene = Gene(1.0, splitting_gene.in_node, new_node, 0, gene_pool=gene_pool)
+        out_gene = Gene(splitting_gene.weight, new_node, splitting_gene.out_node, 0, gene_pool=gene_pool)
 
         new_genes = []
 
@@ -101,10 +65,10 @@ class Genome:
 
     def add_connection(self, gene_pool: GenePool, conditions: Conditions) -> Genome:
         """
-
-        :param gene_pool:
-        :param conditions:
-        :return:
+        Creates a new genome with a randomly generated connection
+        :param gene_pool: The GenePool which provides the innovation number for the new connection
+        :param conditions: The Conditions which control how the range for the weights of the new connection
+        :return: Returns a copy of the current genome, but with a new connection
         """
         endings = []
         starts = self.start_nodes + self.middle_nodes
@@ -132,10 +96,10 @@ class Genome:
 
     def compare(self, other: Genome, conditions: Conditions) -> float:
         """
-
-        :param other:
-        :param conditions:
-        :return:
+        Compares two genomes to find how similar they are
+        :param other: The genome to compare the current genome to
+        :param conditions: The Conditions to compare under, includes weight, disjoint and excess coefficients
+        :return: A float measuring similarity of the genomes, 0.0 being the most similar
         """
         self_index = 0
         other_index = 0
@@ -159,15 +123,15 @@ class Genome:
 
     def breed(self, other: Genome) -> Genome:
         """
-
-        :param other:
-        :return:
+        Breeds two Genomes to create a third child genome
+        :param other: A genome to breed with the current Genome
+        :return: A new genome created by breeding the two given genomes
         """
         pass
 
-    def copy(self):
+    def copy(self) -> Genome:
         """
-
-        :return:
+        Makes a copy of the genome
+        :return: a copy of the genome
         """
         return Genome(list(map(Gene.copy, self.genes)))
