@@ -31,8 +31,33 @@ class Species:
         new_age = self.age + 1
         return Species(new_representative, [], new_age, self.max_fitness)
 
-    def reproduce(self, count: int, genomes: List[Genome], conditions: Conditions):
-        pass
+    def reproduce(self, count: int, genomes: List[Genome], conditions: Conditions) -> List[Genome]:
+        if len(self.genomes) > count:
+            self.genomes.sort()
+            species_genomes = self.genomes[:count]
+        else:
+            species_genomes = self.genomes
+
+        new_genomes = []
+
+        for i in range(count - (1 if conditions.keep_champion else 0)):
+            if random.random() < conditions.asexual_probability:
+                selected_genome = species_genomes[i % len(species_genomes)]
+                new_genome = selected_genome.breed(selected_genome)
+            elif random.random() < conditions.interspecies_reproduction_probability:
+                mother_genome = species_genomes[i % len(species_genomes)]
+                father_genome = random.choice(genomes)
+                new_genome = mother_genome.breed(father_genome)
+            else:
+                mother_genome = species_genomes[i % len(species_genomes)]
+                father_genome = random.choice(species_genomes)
+                new_genome = mother_genome.breed(father_genome)
+            new_genomes.append(new_genome)
+        if conditions.keep_champion:
+            new_genomes.append(species_genomes[0])
+
+        return new_genomes
 
     def trim(self, count: int):
-        pass
+        self.genomes.sort(reverse=True)
+        self.genomes = self.genomes[:count]
