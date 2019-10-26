@@ -78,7 +78,7 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number < other.innovation_number
         else:
-            raise TypeError("Less than is not supported between Gene and %s" % (str(type(other))))
+            raise TypeError("Less than is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __le__(self, other: Gene) -> bool:
         """
@@ -93,7 +93,7 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number <= other.innovation_number
         else:
-            raise TypeError("Less than or equal is not supported between Gene and %s" % (str(type(other))))
+            raise TypeError("Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __gt__(self, other: Gene) -> bool:
         """
@@ -106,7 +106,7 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number > other.innovation_number
         else:
-            raise TypeError("Greater than is not supported between Gene and %s" % (str(type(other))))
+            raise TypeError("Greater than is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __ge__(self, other: Gene) -> bool:
         """
@@ -121,7 +121,7 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number >= other.innovation_number
         else:
-            raise TypeError("Greater than or equal is not supported between Gene and %s" % (str(type(other))))
+            raise TypeError("Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __hash__(self):
         """
@@ -171,7 +171,7 @@ class StructureGene:
         if isinstance(other, StructureGene):
             return self.in_node < other.in_node or (self.in_node == other.in_node and self.out_node < other.out_node)
         else:
-            raise TypeError("Less than is not supported between StructureGene and %s" % (str(type(other))))
+            raise TypeError("Less than is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __le__(self, other: StructureGene) -> bool:
         """
@@ -184,7 +184,7 @@ class StructureGene:
         if isinstance(other, StructureGene):
             return self.in_node < other.in_node or (self.in_node == other.in_node and self.out_node <= other.out_node)
         else:
-            raise TypeError("Less than or equal is not supported between StructureGene and %s" % (str(type(other))))
+            raise TypeError("Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __gt__(self, other: StructureGene) -> bool:
         """
@@ -197,7 +197,7 @@ class StructureGene:
         if isinstance(other, StructureGene):
             return self.in_node > other.in_node or (self.in_node == other.in_node and self.out_node > other.out_node)
         else:
-            raise TypeError("Greater than is not supported between StructureGene and %s" % (str(type(other))))
+            raise TypeError("Greater than is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __ge__(self, other: StructureGene) -> bool:
         """
@@ -210,7 +210,7 @@ class StructureGene:
         if isinstance(other, StructureGene):
             return self.in_node > other.in_node or (self.in_node == other.in_node and self.out_node >= other.out_node)
         else:
-            raise TypeError("Greater than or equal is not supported between StructureGene and %s" % (str(type(other))))
+            raise TypeError("Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __hash__(self):
         """
