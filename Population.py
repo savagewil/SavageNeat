@@ -4,7 +4,7 @@ from typing import List
 
 from Conditions import Conditions
 from Genome import Genome
-from Simulation import Simulation
+from Simulation import Simulation, SimulationState
 from Specie import Specie
 
 
@@ -48,7 +48,37 @@ class Population:
         :param batch_size: The size of the batches to run, if None, then the batch will be the size of all the genomes
         :param simulation: The simulation to run
         """
-        pass
+        if batched:
+            genomes = self.get_genomes()
+            batches = []
+            if batch_size:
+                assert batch_size == simulation.batch_size
+                for batch_start in range(0, len(genomes), batch_size):
+                    batches.append(genomes[batch_start:min(batch_start + batch_size, len(genomes) + 1)])
+            else:
+                assert len(genomes) == simulation.batch_size
+                batches.append(genomes)
+
+            for batch in batches:
+                while any([state != SimulationState.FINISHED for state in simulation.get_state_batch()]):
+                    data = simulation.get_data_batch()
+                    controls = []
+                    for i in range(simulation.batch_size):
+                        if i < len(batch):
+                            control = batch[i].network.run(data[i])
+                            assert len(control) == simulation.get_controls_size()
+                            controls.append(control)
+                        else:
+                            controls.append([0.0]*simulation.get_controls_size())
+
+                    simulation.apply_controls_batch(controls)
+                scores = simulation.get_score_batch()
+                for i in range(len(batch)):
+                    batch[i].set_fitness(scores[i])
+
+        else:
+            for specie in self.species:
+                specie.run(simulation)
 
     def next_stagnant(self, conditions: Conditions) -> Population:
         """
@@ -58,20 +88,24 @@ class Population:
         """
         pass
 
-    def add_all_genomes(self, genomes: [Genome], conditions: Conditions):
+    def add_all_genomes(self, genomes: List[Genome], conditions: Conditions):
         """
         Adds all genomes from a list to the first appropriate species
         :param genomes: A list of genomes to add to the population
         :param conditions: The conditions to use when reproducing
         """
-        pass
+        for genome in genomes:
+            self.add_genome(genome, conditions)
 
-    def get_fertile_genomes(self) -> List[Genome]:
+    def get_fertile_genomes(self, conditions: Conditions) -> List[Genome]:
         """
         Gets all of the genomes which are in a fertile species
         :return: A list of at genomes in a fertile species
         """
-        pass
+        fertile_species = list(filter(lambda specie: specie.fertile(conditions), self.species))
+        list_genomes = list(map(lambda species: species.genomes, fertile_species))
+        genomes = [genome for genomes in list_genomes for genome in genomes]
+        return genomes
 
     def get_genomes(self) -> List[Genome]:
         """
@@ -87,4 +121,7 @@ class Population:
         Removes every empty species
         :return: A list of the removed species
         """
-        pass
+        empty_species = list(filter(lambda specie: specie.genomes is [], self.species))
+        for specie in empty_species:
+            self.species.remove(specie)
+        return empty_species

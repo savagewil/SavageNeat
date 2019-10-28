@@ -239,3 +239,10 @@ class Genome:
             return self.raw_fitness >= other.raw_fitness
         else:
             raise TypeError("Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
+
+    def set_fitness(self, raw_fitness: float):
+        """
+        Sets the score of the genome
+        :param raw_fitness: The new genome score
+        """
+        self.raw_fitness = raw_fitness
