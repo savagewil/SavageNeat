@@ -5,6 +5,7 @@ from typing import List
 
 from Conditions import Conditions
 from Genome import Genome
+from Simulation import Simulation
 
 
 class Species:
@@ -109,3 +110,6 @@ class Species:
         """
         self.genomes.sort(reverse=True)
         return self.genomes[:min(len(self.genomes), count)]
+
+    def run(self, simulation: Simulation):
+        pass

@@ -7,6 +7,7 @@ from NeatErrors import NetworkFullError
 from Network import Network
 from GenePool import GenePool
 from Conditions import Conditions
+from Simulation import Simulation
 
 from processing_genes import process_genes
 
@@ -172,6 +173,9 @@ class Genome:
             new_genome = new_genome.add_node(gene_pool)
 
         return new_genome
+
+    def run(self, simulation:Simulation):
+        pass
 
     def copy(self) -> Genome:
         """
