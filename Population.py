@@ -5,17 +5,17 @@ from typing import List
 from Conditions import Conditions
 from Genome import Genome
 from Simulation import Simulation
-from Species import Species
+from Specie import Specie
 
 
 class Population:
-    def __init__(self, species: Species):
+    def __init__(self, species: List[Specie]):
         """
         Population is a class which represents all of the genomes in the generation
         All of these genomes are collected into species
         :param species: The species in the population
         """
-        self.species = species
+        self.species: List[Specie] = species
 
     def next(self, conditions: Conditions) -> Population:
         """
@@ -78,8 +78,11 @@ class Population:
         Gets all of the genomes in the population
         :return: A list of all the genomes in the population
         """
+        list_genomes = list(map(lambda species: species.genomes, self.species))
+        genomes = [genome for genomes in list_genomes for genome in genomes]
+        return genomes
 
-    def clear_empty_species(self) -> List[Species]:
+    def clear_empty_species(self) -> List[Specie]:
         """
         Removes every empty species
         :return: A list of the removed species

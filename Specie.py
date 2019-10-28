@@ -8,7 +8,7 @@ from Genome import Genome
 from Simulation import Simulation
 
 
-class Species:
+class Specie:
     def __init__(self, representative: Genome, genomes: List[Genome] = None, age: int = 0, max_fitness: float = None):
         """
         The Species class represents a collection of Genomes which are all genetically similar to each other
