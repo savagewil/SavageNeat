@@ -29,10 +29,16 @@ class Population:
         if self.age > conditions.population_age_limit:
             return self.next_stagnant(conditions)
         else:
-            new_species = []
             genomes = self.get_genomes()
             fit_species = list(filter(lambda specie: species.fertile(conditions), self.species))
             total_fitness = sum(list(map(lambda specie:specie.niche_fitness, fit_species)))
+            new_species = list(map(Specie.next, fit_species))
+            total = 0
+            new_genomes = []
+            for specie in fit_species:
+                childern_count = round(conditions.population_size * specie.niche_fitness / total_fitness)
+                new_genomes.extend(specie.reproduce(childern_count, genomes, conditions))
+
             for species in fit_species:
 
 

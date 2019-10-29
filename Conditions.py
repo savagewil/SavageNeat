@@ -7,9 +7,10 @@ class Conditions:
 
                  genome_weight_coefficient: float, genome_disjoint_coefficient: float, genome_excess_coefficient: float,
 
-                 species_age_fertility_limit: int, species_threshold: float, species_keep_champion: bool, species_niche_divide_min: int,
+                 species_age_fertility_limit: int, species_threshold: float,
+                 species_keep_champion: bool, species_niche_divide_min: int,
 
-                 population_age_limit: int):
+                 population_age_limit: int, population_size: int):
         self.gene_weight_probability: float = gene_weight_probability
         self.gene_random_probability: float = gene_random_probability
         self.genome_disable_probability: float = genome_disable_probability
@@ -33,3 +34,4 @@ class Conditions:
         self.species_niche_divide_min: int = species_niche_divide_min
 
         self.population_age_limit: int = population_age_limit
+        self.population_size: int = population_size

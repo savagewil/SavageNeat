@@ -141,3 +141,7 @@ def predict(x):
     return x
 
 predict_v = numpy.vectorize(predict)
+
+def divide_whole(whole:int, fractions:List[float]):
+    top = max(fractions)
+    index = fractions.index()
