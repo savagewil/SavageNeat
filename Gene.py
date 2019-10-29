@@ -32,17 +32,17 @@ class Gene:
         :param conditions: The Conditions objects which contains the parameters of the mutation
         :return: A new mutated gene with the same structure
         """
-        if random.random() < conditions.weight_probability:
-            if random.random() < conditions.random_probability:
-                return Gene(random.random() * (conditions.max_weight - conditions.min_weight) + conditions.min_weight,
+        if random.random() < conditions.gene_weight_probability:
+            if random.random() < conditions.gene_random_probability:
+                return Gene(random.random() * (conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
                             self.in_node, self.out_node, self.innovation_number, self.enabled)
             else:
-                return Gene(min(conditions.max_weight,
-                                max(conditions.min_weight,
+                return Gene(min(conditions.gene_max_weight,
+                                max(conditions.gene_min_weight,
                                     (self.weight +
                                      random.random() *
-                                     2 * conditions.weight_shift
-                                     - conditions.weight_shift))),
+                                     2 * conditions.gene_weight_shift
+                                     - conditions.gene_weight_shift))),
                             self.in_node, self.out_node, self.innovation_number, self.enabled)
         else:
             return self.copy()

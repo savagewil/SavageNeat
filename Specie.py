@@ -77,11 +77,11 @@ class Specie:
 
         new_genomes = []
 
-        for i in range(count - (1 if conditions.keep_champion else 0)):
-            if random.random() < conditions.asexual_probability:
+        for i in range(count - (1 if conditions.species_keep_champion else 0)):
+            if random.random() < conditions.species_asexual_probability:
                 selected_genome = species_genomes[i % len(species_genomes)]
                 new_genome = selected_genome.breed(selected_genome)
-            elif random.random() < conditions.interspecies_reproduction_probability:
+            elif random.random() < conditions.species_interspecies_reproduction_probability:
                 mother_genome = species_genomes[i % len(species_genomes)]
                 father_genome = random.choice(genomes)
                 new_genome = mother_genome.breed(father_genome)
@@ -90,7 +90,7 @@ class Specie:
                 father_genome = random.choice(species_genomes)
                 new_genome = mother_genome.breed(father_genome)
             new_genomes.append(new_genome)
-        if conditions.keep_champion:
+        if conditions.species_keep_champion:
             new_genomes.append(species_genomes[0])
 
         return new_genomes
@@ -111,5 +111,31 @@ class Specie:
         self.genomes.sort(reverse=True)
         return self.genomes[:min(len(self.genomes), count)]
 
-    def run(self, simulation: Simulation):
-        pass
+    def run(self, simulation: Simulation, conditions: Conditions):
+        """
+        Runs a simulation on every genome in the species
+        :param simulation: The simulation to run
+        :param conditions: The conditions to use when updating the fitness of the species
+        :return:
+        """
+        for genome in self.genomes:
+            genome.run(simulation)
+        self.update_fitness(conditions)
+
+    def update_fitness(self, conditions: Conditions):
+        """
+        Updates the max fitness and niche fitness of the species
+        :param conditions: The conditions to use to to get the niche fitness, uses niche_divide_min
+        """
+        niche_sum = 0
+        max_fitness = 0
+        for genome in self.genomes:
+            niche_sum += genome.raw_fitness
+            max_fitness = max(max_fitness, genome.raw_fitness)
+        if max_fitness > self.max_fitness:
+            self.max_fitness = max_fitness
+            self.age = 0
+        if conditions.species_niche_divide_min < len(self.genomes):
+            self.niche_fitness = niche_sum / len(self.genomes)
+        else:
+            self.niche_fitness = niche_sum

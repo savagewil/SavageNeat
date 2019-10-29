@@ -9,13 +9,15 @@ from Specie import Specie
 
 
 class Population:
-    def __init__(self, species: List[Specie]):
+    def __init__(self, species: List[Specie], age: int = 0, max_fitness: float = None):
         """
         Population is a class which represents all of the genomes in the generation
         All of these genomes are collected into species
         :param species: The species in the population
         """
         self.species: List[Specie] = species
+        self.age: int = age
+        self.max_fitness: float = max_fitness
 
     def next(self, conditions: Conditions) -> Population:
         """
@@ -24,7 +26,18 @@ class Population:
         :param conditions: The conditions used to produce the next population
         :return: The new population for the next generation
         """
-        pass
+        if self.age > conditions.population_age_limit:
+            return self.next_stagnant(conditions)
+        else:
+            new_species = []
+            genomes = self.get_genomes()
+            fit_species = list(filter(lambda specie: species.fertile(conditions), self.species))
+            total_fitness = sum(list(map(lambda specie:specie.niche_fitness, fit_species)))
+            for species in fit_species:
+
+
+            new_population = Population([], self.age + 1, self.max_fitness)
+            return new_population
 
     def add_genome(self, genome: Genome, conditions: Conditions):
         """
@@ -32,16 +45,23 @@ class Population:
         :param genome: The genome to add into the population
         :param conditions: The conditions to use when comparing the genome to the species
         """
-        pass
+        added = True
+        for specie in self.species:
+            if specie.add(genome, conditions):
+                added = True
+                break
+        if not added:
+            specie = Specie(genome, [genome])
+            self.add(specie)
 
-    def add(self, species: Species):
+    def add(self, species: Specie):
         """
         Adds a new species to the population
         :param species: The species to add
         """
-        pass
+        self.species.append(species)
 
-    def run(self, simulation: Simulation, batched: bool = False, batch_size: int = None):
+    def run(self, simulation: Simulation, conditions:Conditions, batched: bool = False, batch_size: int = None):
         """
         Runs a simulation on every member of the population
         :param batched: If false run sim separately on each genome, if true run them as groups
@@ -76,9 +96,13 @@ class Population:
                 for i in range(len(batch)):
                     batch[i].set_fitness(scores[i])
 
+            for specie in self.species:
+                specie.update_fitness(conditions)
+
         else:
             for specie in self.species:
-                specie.run(simulation)
+                specie.run(simulation, conditions)
+
 
     def next_stagnant(self, conditions: Conditions) -> Population:
         """
@@ -125,3 +149,13 @@ class Population:
         for specie in empty_species:
             self.species.remove(specie)
         return empty_species
+
+    def update_fitness(self):
+        """
+        Updates the max fitness of the population
+        """
+        max_fitness = max(list(map(lambda specie: specie.max_fitness, self.species)))
+
+        if max_fitness > self.max_fitness:
+            self.max_fitness = max_fitness
+            self.age = 0

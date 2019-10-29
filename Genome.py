@@ -91,7 +91,7 @@ class Genome:
                     endings.remove(gene.out_node)
         if endings:
             end_node = random.choice(endings)
-            new_gene = Gene(random.random() * (conditions.max_weight - conditions.min_weight) + conditions.min_weight,
+            new_gene = Gene(random.random() * (conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
                             start_node, end_node, 0, gene_pool=gene_pool)
             new_genes = list(map(Gene.copy, self.genes))
             new_genes.append(new_gene)
@@ -114,16 +114,16 @@ class Genome:
             if self.genes[self_index] == other.genes[other_index]:
                 comparison += (abs(self.genes[self_index].innovation_number -
                                    other.genes[other_index].innovation_number) *
-                               conditions.weight_coefficient)
+                               conditions.genome_weight_coefficient)
                 self_index += 1
                 other_index += 1
             elif self.genes[self_index] < other.genes[other_index]:
-                comparison += conditions.disjoint_coefficient
+                comparison += conditions.genome_disjoint_coefficient
                 self_index += 1
             else:
-                comparison += conditions.disjoint_coefficient
+                comparison += conditions.genome_disjoint_coefficient
                 other_index += 1
-        comparison += (len(self.genes) - self_index + len(other.genes) - other_index) * conditions.excess_coefficient
+        comparison += (len(self.genes) - self_index + len(other.genes) - other_index) * conditions.genome_excess_coefficient
         return comparison
 
     def breed(self, other: Genome, gene_pool: GenePool, conditions: Conditions) -> Genome:
@@ -142,7 +142,7 @@ class Genome:
                 new_gene = self.genes[self_index].copy()
                 new_gene.weight = random.choice([self.genes[self_index].weight, other.genes[self_index].weight])
                 new_gene.enabled = ((self.genes[self_index].enabled and other.genes[self_index].enabled) or
-                                    random.random() > conditions.disable_probability)
+                                    random.random() > conditions.genome_disable_probability)
                 new_genes.append(new_gene)
                 self_index += 1
                 other_index += 1
@@ -150,14 +150,14 @@ class Genome:
                 if self.raw_fitness >= other.raw_fitness:
                     new_gene = self.genes[self_index].copy()
                     new_gene.enabled = (self.genes[self_index].enabled or
-                                        random.random() > conditions.disable_probability)
+                                        random.random() > conditions.genome_disable_probability)
                     new_genes.append(new_gene)
                 self_index += 1
             else:
                 if self.raw_fitness <= other.raw_fitness:
                     new_gene = other.genes[self_index].copy()
                     new_gene.enabled = (other.genes[self_index].enabled or
-                                        random.random() > conditions.disable_probability)
+                                        random.random() > conditions.genome_disable_probability)
                     new_genes.append(new_gene)
                 other_index += 1
 
@@ -166,10 +166,10 @@ class Genome:
 
         new_genome = Genome(new_genes, self.input_size, self.output_size)
 
-        if random.random() < conditions.connection_probability:
+        if random.random() < conditions.genome_connection_probability:
             new_genome = new_genome.add_connection(gene_pool, conditions)
 
-        if random.random() < conditions.node_probability:
+        if random.random() < conditions.genome_node_probability:
             new_genome = new_genome.add_node(gene_pool)
 
         return new_genome
