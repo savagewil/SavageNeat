@@ -15,12 +15,13 @@ def sigmoid(x: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]
 def sigmoid_neat(x: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]:
     return numpy.divide(1.0, numpy.add(1.0, numpy.exp(numpy.multiply(-4.9, x))))
 
-def sigmoid_der(array: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]:
-    return numpy.multiply(numpy.subtract(1.0, array), array)
 
 def sigmoid_der(array: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]:
     return numpy.multiply(numpy.subtract(1.0, array), array)
 
+
+def sigmoid_der(array: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]:
+    return numpy.multiply(numpy.subtract(1.0, array), array)
 
 
 def tanh_derivative(x: Union[int, float, numpy.array]) -> Union[int, float, numpy.array]:
@@ -113,13 +114,14 @@ def decode_list(LIST, decode, depth):
 def discrete_tests(size, prob):
     return sum(map(test_one, [prob] * size))
 
+
 def encode_gene(gene):
-    return ";".join(map(str,gene))
+    return ";".join(map(str, gene))
+
 
 def decode_gene(gene):
     gene = gene.split(";")
     return int(gene[0]), int(gene[1]), int(gene[2]), float(gene[3]), to_bool(gene[4])
-
 
 
 def get_species(species, net):
@@ -133,6 +135,7 @@ def get_species(species, net):
 def not_none(x):
     return x is not None
 
+
 def predict(x):
     if x >= .9:
         return 1.0
@@ -140,8 +143,23 @@ def predict(x):
         return 0.0
     return x
 
+
 predict_v = numpy.vectorize(predict)
 
-def divide_whole(whole:int, fractions:List[float]):
+
+def divide_whole(whole: int, fractions: List[float]):
     top = max(fractions)
-    index = fractions.index()
+    index = fractions.index(top)
+    if top >= 1.0:
+        chunk = int(top)
+        fractions[index] -= chunk
+    else:
+        chunk = 1
+        fractions[index] = 0
+    whole -= chunk
+    if whole > 0:
+        result = divide_whole(whole, fractions)
+    else:
+        result = [0 for fraction in fractions]
+    result[index] += chunk
+    return result
