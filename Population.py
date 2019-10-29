@@ -6,6 +6,7 @@ from Conditions import Conditions
 from Genome import Genome
 from Simulation import Simulation, SimulationState
 from Specie import Specie
+from formulas import divide_whole
 
 
 class Population:
@@ -30,19 +31,16 @@ class Population:
             return self.next_stagnant(conditions)
         else:
             genomes = self.get_genomes()
-            fit_species = list(filter(lambda specie: species.fertile(conditions), self.species))
+            fit_species = list(filter(lambda specie: specie.fertile(conditions), self.species))
             total_fitness = sum(list(map(lambda specie:specie.niche_fitness, fit_species)))
+            childern_count = list(map(lambda specie:specie.niche_fitness * conditions.population_size / total_fitness, fit_species))
             new_species = list(map(Specie.next, fit_species))
-            total = 0
             new_genomes = []
-            for specie in fit_species:
-                childern_count = round(conditions.population_size * specie.niche_fitness / total_fitness)
-                new_genomes.extend(specie.reproduce(childern_count, genomes, conditions))
+            for i in range(len(fit_species)):
+                new_genomes.extend(fit_species[i].reproduce(childern_count[i], genomes, conditions))
 
-            for species in fit_species:
-
-
-            new_population = Population([], self.age + 1, self.max_fitness)
+            new_population = Population(new_species, self.age + 1, self.max_fitness)
+            new_population.add_all_genomes(new_genomes, conditions)
             return new_population
 
     def add_genome(self, genome: Genome, conditions: Conditions):
