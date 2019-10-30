@@ -146,20 +146,3 @@ def predict(x):
 
 predict_v = numpy.vectorize(predict)
 
-
-def divide_whole(whole: int, fractions: List[float]):
-    top = max(fractions)
-    index = fractions.index(top)
-    if top >= 1.0:
-        chunk = int(top)
-        fractions[index] -= chunk
-    else:
-        chunk = 1
-        fractions[index] = 0
-    whole -= chunk
-    if whole > 0:
-        result = divide_whole(whole, fractions)
-    else:
-        result = [0 for fraction in fractions]
-    result[index] += chunk
-    return result

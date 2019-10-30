@@ -10,6 +10,7 @@ from Generation import Generation
 from Genome import Genome
 from Population import Population
 from Simulation import Simulation
+from functions import surround_tag, remove_tag
 
 
 class NeatApplication:
@@ -68,10 +69,32 @@ class NeatApplication:
         self.current_generation = next_gen
 
     def save(self, file_path):
-        pass
+        save_string = ""
+        save_string += surround_tag('current', self.current_generation.save())
+
+        past_string = ""
+        for generation in self.past:
+            surround_tag("generation",generation.save())
+
+        save_string += surround_tag("past", past_string)
+
+        save_file = open(file_path, 'w')
+        save_file.write(save_string)
+        save_file.close()
 
     def load(self, file_path):
-        pass
+        load_file = open(file_path, 'r')
+        load_string = "\n".join(load_file.readlines())
+        load_file.close()
+        current_gen, load_string = remove_tag('current', load_string)
+        self.current_generation = Generation.load(None, current_gen)
+        past, load_string = remove_tag('past', load_string)
+        past_gen, load_string = remove_tag('generation', load_string)
+        self.past = []
+        while past_gen is not None:
+            self.past.append(Generation.load(None, past_gen))
+            past_gen, load_string = remove_tag('generation', load_string)
+
 
     def main(self, time=None, batched=False, batch_size=None, verbosity=0):
         while time is None or time > 0:
