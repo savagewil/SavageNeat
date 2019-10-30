@@ -83,6 +83,7 @@ class Population:
         :param batched: If false run sim separately on each genome, if true run them as groups
         :param batch_size: The size of the batches to run, if None, then the batch will be the size of all the genomes
         :param simulation: The simulation to run
+        :param conditions: The conditions to use when running the simulation
         """
         if batched:
             genomes = self.get_genomes()
@@ -116,8 +117,11 @@ class Population:
                 specie.update_fitness(conditions)
 
         else:
+            batch_id = 0
             for specie in self.species:
-                specie.run(simulation, conditions)
+                specie.run(simulation, conditions, first_batch_id=batch_id)
+                batch_id += len(specie.genomes)
+        self.update_fitness()
 
     def next_stagnant(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """

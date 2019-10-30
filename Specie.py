@@ -113,15 +113,16 @@ class Specie:
         self.genomes.sort(reverse=True)
         return self.genomes[:min(len(self.genomes), count)]
 
-    def run(self, simulation: Simulation, conditions: Conditions):
+    def run(self, simulation: Simulation, conditions: Conditions, first_batch_id=0):
         """
         Runs a simulation on every genome in the species
+        :param first_batch_id: The first batch id in the species
         :param simulation: The simulation to run
         :param conditions: The conditions to use when updating the fitness of the species
         :return:
         """
-        for genome in self.genomes:
-            genome.run(simulation)
+        for i in range(len(self.genomes)):
+            self.genomes[i].run(simulation, batch_id=i+first_batch_id)
         self.update_fitness(conditions)
 
     def update_fitness(self, conditions: Conditions):
