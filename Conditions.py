@@ -1,6 +1,7 @@
 class Conditions:
     def __init__(self, gene_weight_probability: float, gene_random_probability: float,
-                 genome_disable_probability: float, genome_node_probability: float, genome_connection_probability: float,
+                 genome_disable_probability: float, genome_node_probability: float,
+                 genome_connection_probability: float,
                  species_asexual_probability: float, species_interspecies_reproduction_probability: float,
 
                  gene_max_weight: float, gene_min_weight: float, gene_weight_shift: float,
@@ -10,7 +11,9 @@ class Conditions:
                  species_age_fertility_limit: int, species_threshold: float,
                  species_keep_champion: bool, species_niche_divide_min: int,
 
-                 population_age_limit: int, population_size: int):
+                 population_age_limit: int, population_size: int,
+
+                 app_start_node_depth: int, app_end_node_depth: int):
         self.gene_weight_probability: float = gene_weight_probability
         self.gene_random_probability: float = gene_random_probability
         self.genome_disable_probability: float = genome_disable_probability
@@ -35,3 +38,6 @@ class Conditions:
 
         self.population_age_limit: int = population_age_limit
         self.population_size: int = population_size
+
+        self.app_start_node_depth = app_start_node_depth
+        self.app_end_node_depth = app_end_node_depth
