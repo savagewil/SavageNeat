@@ -4,6 +4,7 @@ import random
 from typing import List
 
 from Conditions import Conditions
+from GenePool import GenePool
 from Genome import Genome
 from Simulation import Simulation
 
@@ -52,18 +53,19 @@ class Specie:
             return True
         return False
 
-    def next(self) -> Species:
+    def next(self) -> Specie:
         """
         Gets the species for the next generation
         :return: The same species, with no genes, a representative from the current generation and the age increased
         """
         new_representative = random.choice(self.genomes)
         new_age = self.age + 1
-        return Species(new_representative, [], new_age, self.max_fitness)
+        return Specie(new_representative, [], new_age, self.max_fitness)
 
-    def reproduce(self, count: int, genomes: List[Genome], conditions: Conditions) -> List[Genome]:
+    def reproduce(self, count: int, genomes: List[Genome], conditions: Conditions, gene_pool: GenePool) -> List[Genome]:
         """
         Creates a new list of genomes
+        :param gene_pool: The gene pool used when breeding new genomes
         :param count: The number of genomes to produce
         :param genomes: The genomes from the population
         :param conditions: The conditions to use to reproduce
@@ -80,15 +82,15 @@ class Specie:
         for i in range(count - (1 if conditions.species_keep_champion else 0)):
             if random.random() < conditions.species_asexual_probability:
                 selected_genome = species_genomes[i % len(species_genomes)]
-                new_genome = selected_genome.breed(selected_genome)
+                new_genome = selected_genome.breed(selected_genome, gene_pool, conditions)
             elif random.random() < conditions.species_interspecies_reproduction_probability:
                 mother_genome = species_genomes[i % len(species_genomes)]
                 father_genome = random.choice(genomes)
-                new_genome = mother_genome.breed(father_genome)
+                new_genome = mother_genome.breed(father_genome, gene_pool, conditions)
             else:
                 mother_genome = species_genomes[i % len(species_genomes)]
                 father_genome = random.choice(species_genomes)
-                new_genome = mother_genome.breed(father_genome)
+                new_genome = mother_genome.breed(father_genome, gene_pool, conditions)
             new_genomes.append(new_genome)
         if conditions.species_keep_champion:
             new_genomes.append(species_genomes[0])

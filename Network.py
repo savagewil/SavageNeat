@@ -57,7 +57,7 @@ class Network:
             input_data = simulation.get_data(batch_id=self.batch_id)
             processed_data = self.run(input_data)
             simulation.apply_controls(processed_data, batch_id=self.batch_id)
-        return simulation.get_score()
+        return simulation.get_score(batch_id=self.batch_id)
 
     def set_batch_id(self, batch_id: int):
         """

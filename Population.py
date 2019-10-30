@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import random
 from typing import List
 
+import formulas
 from Conditions import Conditions
+from GenePool import GenePool
 from Genome import Genome
 from Simulation import Simulation, SimulationState
 from Specie import Specie
@@ -20,27 +23,36 @@ class Population:
         self.age: int = age
         self.max_fitness: float = max_fitness
 
-    def next(self, conditions: Conditions) -> Population:
+    def next(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """
         Produces the population of the next generation
         Makes the species reproduce, then adds the new genomes are created to the species
+        :param gene_pool: The gene pool used when breeding new genomes
         :param conditions: The conditions used to produce the next population
         :return: The new population for the next generation
         """
         if self.age > conditions.population_age_limit:
-            return self.next_stagnant(conditions)
+
+            return self.next_stagnant(conditions, gene_pool)
+
         else:
             genomes = self.get_genomes()
             fit_species = list(filter(lambda specie: specie.fertile(conditions), self.species))
-            total_fitness = sum(list(map(lambda specie:specie.niche_fitness, fit_species)))
-            childern_count = list(map(lambda specie:specie.niche_fitness * conditions.population_size / total_fitness, fit_species))
+
+            total_fitness = sum(list(map(lambda specie: specie.niche_fitness, fit_species)))
+
+            children_count = list(map(lambda specie: specie.niche_fitness * conditions.population_size / total_fitness,
+                                      fit_species))
+            children_count = formulas.divide_whole(conditions.population_size, children_count)
+
             new_species = list(map(Specie.next, fit_species))
             new_genomes = []
             for i in range(len(fit_species)):
-                new_genomes.extend(fit_species[i].reproduce(childern_count[i], genomes, conditions))
+                new_genomes.extend(fit_species[i].reproduce(children_count[i], genomes, conditions, gene_pool))
 
             new_population = Population(new_species, self.age + 1, self.max_fitness)
             new_population.add_all_genomes(new_genomes, conditions)
+
             return new_population
 
     def add_genome(self, genome: Genome, conditions: Conditions):
@@ -65,7 +77,7 @@ class Population:
         """
         self.species.append(species)
 
-    def run(self, simulation: Simulation, conditions:Conditions, batched: bool = False, batch_size: int = None):
+    def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None):
         """
         Runs a simulation on every member of the population
         :param batched: If false run sim separately on each genome, if true run them as groups
@@ -93,7 +105,7 @@ class Population:
                             assert len(control) == simulation.get_controls_size()
                             controls.append(control)
                         else:
-                            controls.append([0.0]*simulation.get_controls_size())
+                            controls.append([0.0] * simulation.get_controls_size())
 
                     simulation.apply_controls_batch(controls)
                 scores = simulation.get_score_batch()
@@ -107,14 +119,24 @@ class Population:
             for specie in self.species:
                 specie.run(simulation, conditions)
 
-
-    def next_stagnant(self, conditions: Conditions) -> Population:
+    def next_stagnant(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """
         Produces the next populations if the whole population is stagnant
+        :param gene_pool: The gene pool used for reproduction
         :param conditions: The conditions to use when reproducing
         :return: The next population
         """
-        pass
+        self.species.sort(key=lambda specie: specie.niche_fitness)
+        genomes = self.species[0].genomes + self.species[1].genomes
+        genomes.sort()
+        new_genomes = []
+        for i in range(conditions.population_size):
+            father_genome = genomes[i % len(genomes)]
+            mother_genome = random.choice(genomes)
+            new_genomes.append(father_genome.breed(mother_genome, gene_pool, conditions))
+        new_population = Population([], age=self.age + 1, max_fitness=self.max_fitness)
+        new_population.add_all_genomes(new_genomes, conditions)
+        return new_population
 
     def add_all_genomes(self, genomes: List[Genome], conditions: Conditions):
         """

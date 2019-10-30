@@ -91,7 +91,8 @@ class Genome:
                     endings.remove(gene.out_node)
         if endings:
             end_node = random.choice(endings)
-            new_gene = Gene(random.random() * (conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
+            new_gene = Gene(random.random() * (
+                    conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
                             start_node, end_node, 0, gene_pool=gene_pool)
             new_genes = list(map(Gene.copy, self.genes))
             new_genes.append(new_gene)
@@ -123,7 +124,8 @@ class Genome:
             else:
                 comparison += conditions.genome_disjoint_coefficient
                 other_index += 1
-        comparison += (len(self.genes) - self_index + len(other.genes) - other_index) * conditions.genome_excess_coefficient
+        comparison += (len(self.genes) - self_index + len(
+            other.genes) - other_index) * conditions.genome_excess_coefficient
         return comparison
 
     def breed(self, other: Genome, gene_pool: GenePool, conditions: Conditions) -> Genome:
@@ -174,8 +176,14 @@ class Genome:
 
         return new_genome
 
-    def run(self, simulation:Simulation):
-        pass
+    def run(self, simulation: Simulation, batch_id=0):
+        """
+        Runs a simulation using the genome, then updates the score
+        :param batch_id: The id while shows which agent it is in the batch
+        :param simulation: The simulation to run
+        """
+        self.network.batch_id = batch_id
+        self.raw_fitness = self.network.execute(simulation)
 
     def copy(self) -> Genome:
         """
@@ -183,7 +191,6 @@ class Genome:
         :return: a copy of the genome
         """
         return Genome(list(map(Gene.copy, self.genes)), self.input_size, self.output_size)
-
 
     def __eq__(self, other: Genome) -> bool:
         """
@@ -216,7 +223,8 @@ class Genome:
         if isinstance(other, Genome):
             return self.raw_fitness <= other.raw_fitness
         else:
-            raise TypeError("Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
+            raise TypeError(
+                "Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __gt__(self, other: Genome) -> bool:
         """
@@ -238,7 +246,8 @@ class Genome:
         if isinstance(other, Genome):
             return self.raw_fitness >= other.raw_fitness
         else:
-            raise TypeError("Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
+            raise TypeError(
+                "Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def set_fitness(self, raw_fitness: float):
         """
