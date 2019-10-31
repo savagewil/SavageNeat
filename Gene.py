@@ -3,6 +3,7 @@ from Conditions import Conditions
 import random
 
 from GenePool import GenePool
+from functions import surround_tag, remove_tag
 
 
 class Gene:
@@ -137,6 +138,33 @@ class Gene:
         """
         return StructureGene(self.in_node, self.out_node)
 
+    def __str__(self) -> str:
+
+        save_string = ""
+        save_string += surround_tag("weight", str(self.weight))
+        save_string += surround_tag("in_node", str(self.in_node))
+        save_string += surround_tag("out_node", str(self.out_node))
+        save_string += surround_tag("innovation_number", str(self.innovation_number))
+        save_string += surround_tag("enabled", str(self.enabled))
+
+        return save_string
+
+    @staticmethod
+    def load(string) -> Gene:
+        weight_str, string = remove_tag("weight", string)
+        in_node_str, string = remove_tag("in_node", string)
+        out_node_str, string = remove_tag("out_node", string)
+        innovation_number_str, string = remove_tag("innovation_number", string)
+        enabled_str, string = remove_tag("enabled", string)
+
+        weight = float(weight_str)
+        in_node = int(in_node_str)
+        out_node = int(out_node_str)
+        innovation_number = int(innovation_number_str)
+        enabled = bool(enabled_str)
+
+        return Gene(weight,in_node, out_node, innovation_number, enabled)
+
 
 class StructureGene:
     def __init__(self, in_node: int, out_node: int):
@@ -227,3 +255,23 @@ class StructureGene:
             out_node = out_node // 10
             shift *= 100
         return hash_agg
+
+    def __str__(self) -> str:
+
+        save_string = ""
+        save_string += surround_tag("in_node", str(self.in_node))
+        save_string += surround_tag("out_node", str(self.out_node))
+
+        return save_string
+
+    @staticmethod
+    def load(string) -> StructureGene:
+        in_node_str, string = remove_tag("in_node", string)
+        out_node_str, string = remove_tag("out_node", string)
+
+        in_node = int(in_node_str)
+        out_node = int(out_node_str)
+
+        return StructureGene(in_node, out_node)
+
+

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Dict
 
 from Gene import Gene, StructureGene
-from functions import surround_tag, remove_tag
+from functions import surround_tag, remove_tag, load_dict, save_dict
 
 
 class GenePool:
@@ -73,33 +73,31 @@ class GenePool:
 
     def __str__(self) -> str:
 
-        self.innovation_number: int = innovation_number
-        self.node_number: int = node_number
-        self.connection_innovations: Dict[StructureGene, int] = {}
-        self.node_innovations: Dict[Gene, int] = {}
-        self.node_depths: Dict[int: int] = node_depths
-
         save_string = ""
         save_string += surround_tag("innovation_number", str(self.innovation_number))
         save_string += surround_tag("node_number", str(self.node_number))
-        species_string = ""
-        for specie in self.species:
-            species_string += surround_tag("specie", str(specie))
-        save_string += surround_tag("species", species_string)
+
+        save_string += surround_tag("connection_innovations", save_dict(self.connection_innovations))
+        save_string += surround_tag("node_innovations", save_dict(self.node_innovations))
+        save_string += surround_tag("node_depths", save_dict(self.node_depths))
         return save_string
 
     @staticmethod
     def load(string) -> GenePool:
-        age_str, string = remove_tag("age", string)
-        max_fitness_str, string = remove_tag("max_fitness", string)
-        species_str, string = remove_tag("species", string)
+        innovation_number_str, string = remove_tag("innovation_number", string)
+        node_number_str, string = remove_tag("node_number", string)
+        connection_innovations_str, string = remove_tag("connection_innovations", string)
+        node_innovations_str, string = remove_tag("node_innovations", string)
+        node_depths_str, string = remove_tag("node_depths", string)
 
-        age = int(age_str)
-        max_fitness = float(max_fitness_str)
-        species = []
-        while species_str:
-            specie_str, species_str = remove_tag("specie", species_str)
-            specie = Specie.load(specie_str)
-            species.append(specie)
+        innovation_number = int(innovation_number_str)
+        node_number = int(node_number_str)
+        connection_innovations = load_dict(connection_innovations_str, StructureGene, int)
+        node_innovations = load_dict(node_innovations_str, Gene, int)
+        node_depths = load_dict(node_depths_str, int, int)
 
-        return Population(species, age, max_fitness)
+        gene_pool = GenePool(innovation_number, node_number, node_depths)
+        gene_pool.connection_innovations = connection_innovations
+        gene_pool.node_innovations = node_innovations
+
+        return gene_pool

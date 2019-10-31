@@ -270,17 +270,20 @@ class Genome:
         return save_string
 
     @staticmethod
-    def load(string) -> Population:
-        age_str, string = remove_tag("age", string)
-        max_fitness_str, string = remove_tag("max_fitness", string)
-        species_str, string = remove_tag("species", string)
+    def load(string) -> Genome:
+        input_size_str, string = remove_tag("input_size", string)
+        output_size_str, string = remove_tag("output_size", string)
+        raw_fitness_str, string = remove_tag("raw_fitness", string)
+        genes_str, string = remove_tag("genes", string)
 
-        age = int(age_str)
-        max_fitness = float(max_fitness_str)
-        species = []
-        while species_str:
-            specie_str, species_str = remove_tag("specie", species_str)
-            specie = Specie.load(specie_str)
-            species.append(specie)
-
-        return Population(species, age, max_fitness)
+        input_size = int(input_size_str)
+        output_size = int(output_size_str)
+        raw_fitness = float(raw_fitness_str)
+        genes = []
+        while genes_str:
+            gene_str, genes_str = remove_tag("gene", genes_str)
+            gene = Gene.load(gene_str)
+            genes.append(gene)
+        genome = Genome(genes, input_size, output_size)
+        genome.raw_fitness = raw_fitness
+        return genome
