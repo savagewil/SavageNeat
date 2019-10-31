@@ -7,6 +7,7 @@ from Conditions import Conditions
 from GenePool import GenePool
 from Genome import Genome
 from Simulation import Simulation
+from functions import surround_tag, remove_tag
 
 
 class Specie:
@@ -122,7 +123,7 @@ class Specie:
         :return:
         """
         for i in range(len(self.genomes)):
-            self.genomes[i].run(simulation, batch_id=i+first_batch_id)
+            self.genomes[i].run(simulation, batch_id=i + first_batch_id)
         self.update_fitness(conditions)
 
     def update_fitness(self, conditions: Conditions):
@@ -142,3 +143,45 @@ class Specie:
             self.niche_fitness = niche_sum / len(self.genomes)
         else:
             self.niche_fitness = niche_sum
+
+    def __str__(self) -> str:
+
+        self.representative = representative
+        self.genomes = genomes if genomes else []
+        self.age = age
+        self.max_fitness = max_fitness
+        self.niche_fitness = 0
+
+        save_string = ""
+        save_string += surround_tag("representative", str(self.representative))
+        save_string += surround_tag("age", str(self.age))
+        save_string += surround_tag("niche_fitness", str(self.niche_fitness))
+        save_string += surround_tag("max_fitness", str(self.max_fitness))
+        genomes_string = ""
+        for genome in self.genomes:
+            genomes_string += surround_tag("genome", str(genome))
+        save_string += surround_tag("genomes", genomes_string)
+        return save_string
+
+    @staticmethod
+    def load(string) -> Specie:
+        representative_str, string = remove_tag("representative", string)
+        age_str, string = remove_tag("age", string)
+        niche_fitness_str, string = remove_tag("niche_fitness", string)
+        max_fitness_str, string = remove_tag("max_fitness", string)
+        genomes_str, string = remove_tag("genomes", string)
+
+        representative = Genome.load(representative_str)
+        age = int(age_str)
+        niche_fitness = float(niche_fitness_str)
+        max_fitness = float(max_fitness_str)
+
+        genomes = []
+        while genomes_str:
+            genome_str, genomes_str = remove_tag("genome", genomes_str)
+            genome = Genome.load(genome_str)
+            genomes.append(genome)
+        specie = Specie(representative, genomes, age, max_fitness)
+        specie.niche_fitness = niche_fitness
+
+        return specie

@@ -8,6 +8,7 @@ from Network import Network
 from GenePool import GenePool
 from Conditions import Conditions
 from Simulation import Simulation
+from functions import surround_tag, remove_tag
 
 from processing_genes import process_genes
 
@@ -27,9 +28,9 @@ class Genome:
         self.raw_fitness: float = 0
         self.input_size: int = input_size
         self.output_size: int = output_size
-        self.start_nodes: List[int] = list(range(input_size))
+        self.start_nodes: List[int] = list(range(1, input_size + 1))
         self.middle_nodes: List[int] = middles
-        self.end_nodes: List[int] = list(range(-output_size, 0))
+        self.end_nodes: List[int] = list(range(0, -output_size, -1))
 
     def add_node(self, gene_pool: GenePool) -> Genome:
         """
@@ -255,3 +256,31 @@ class Genome:
         :param raw_fitness: The new genome score
         """
         self.raw_fitness = raw_fitness
+
+    def __str__(self) -> str:
+
+        save_string = ""
+        save_string += surround_tag("input_size", str(self.input_size))
+        save_string += surround_tag("output_size", str(self.output_size))
+        save_string += surround_tag("raw_fitness", str(self.raw_fitness))
+        genes_string = ""
+        for gene in self.genes:
+            genes_string += surround_tag("gene", str(gene))
+        save_string += surround_tag("genes", genes_string)
+        return save_string
+
+    @staticmethod
+    def load(string) -> Population:
+        age_str, string = remove_tag("age", string)
+        max_fitness_str, string = remove_tag("max_fitness", string)
+        species_str, string = remove_tag("species", string)
+
+        age = int(age_str)
+        max_fitness = float(max_fitness_str)
+        species = []
+        while species_str:
+            specie_str, species_str = remove_tag("specie", species_str)
+            specie = Specie.load(specie_str)
+            species.append(specie)
+
+        return Population(species, age, max_fitness)
