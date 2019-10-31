@@ -5,6 +5,7 @@ from GenePool import GenePool
 from Genome import Genome
 from Population import Population
 from Simulation import Simulation
+from functions import surround_tag, remove_tag
 
 
 class Generation:
@@ -53,3 +54,19 @@ class Generation:
         """
         genomes = self.population.get_genomes()
         return max(genomes)
+
+    def __str__(self) -> str:
+        save_string = ""
+        save_string += surround_tag("generation_count", str(self.generation))
+        save_string += surround_tag("population", str(self.population))
+        save_string += surround_tag("gene_pool", str(self.gene_pool))
+        return save_string
+
+    @staticmethod
+    def load(string) -> Generation:
+        generation_count, string = remove_tag("generation_count", string)
+        population_str, string = remove_tag("population", string)
+        gene_pool_str, string = remove_tag("gene_pool", string)
+        population = Population.load(population_str)
+        gene_pool = GenePool.load(gene_pool_str)
+        return Generation(int(generation_count), population, gene_pool)

@@ -74,7 +74,7 @@ class NeatApplication:
 
         past_string = ""
         for generation in self.past:
-            surround_tag("generation",generation.save())
+            surround_tag("generation", generation.save())
 
         save_string += surround_tag("past", past_string)
 
@@ -87,14 +87,13 @@ class NeatApplication:
         load_string = "\n".join(load_file.readlines())
         load_file.close()
         current_gen, load_string = remove_tag('current', load_string)
-        self.current_generation = Generation.load(None, current_gen)
+        self.current_generation = Generation.load(current_gen)
         past, load_string = remove_tag('past', load_string)
         past_gen, load_string = remove_tag('generation', load_string)
         self.past = []
         while past_gen is not None:
-            self.past.append(Generation.load(None, past_gen))
+            self.past.append(Generation.load(past_gen))
             past_gen, load_string = remove_tag('generation', load_string)
-
 
     def main(self, time=None, batched=False, batch_size=None, verbosity=0):
         while time is None or time > 0:

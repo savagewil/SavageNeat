@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Dict
 
 from Gene import Gene, StructureGene
+from functions import surround_tag, remove_tag
 
 
 class GenePool:
@@ -69,3 +70,36 @@ class GenePool:
         :return: The next GenePool
         """
         return GenePool(self.innovation_number, self.node_number, self.node_depths.copy())
+
+    def __str__(self) -> str:
+
+        self.innovation_number: int = innovation_number
+        self.node_number: int = node_number
+        self.connection_innovations: Dict[StructureGene, int] = {}
+        self.node_innovations: Dict[Gene, int] = {}
+        self.node_depths: Dict[int: int] = node_depths
+
+        save_string = ""
+        save_string += surround_tag("innovation_number", str(self.innovation_number))
+        save_string += surround_tag("node_number", str(self.node_number))
+        species_string = ""
+        for specie in self.species:
+            species_string += surround_tag("specie", str(specie))
+        save_string += surround_tag("species", species_string)
+        return save_string
+
+    @staticmethod
+    def load(string) -> GenePool:
+        age_str, string = remove_tag("age", string)
+        max_fitness_str, string = remove_tag("max_fitness", string)
+        species_str, string = remove_tag("species", string)
+
+        age = int(age_str)
+        max_fitness = float(max_fitness_str)
+        species = []
+        while species_str:
+            specie_str, species_str = remove_tag("specie", species_str)
+            specie = Specie.load(specie_str)
+            species.append(specie)
+
+        return Population(species, age, max_fitness)

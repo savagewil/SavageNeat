@@ -10,6 +10,7 @@ from Genome import Genome
 from Simulation import Simulation, SimulationState
 from Specie import Specie
 from formulas import divide_whole
+from functions import surround_tag, remove_tag
 
 
 class Population:
@@ -189,3 +190,29 @@ class Population:
         if max_fitness > self.max_fitness:
             self.max_fitness = max_fitness
             self.age = 0
+
+    def __str__(self) -> str:
+        save_string = ""
+        save_string += surround_tag("age", str(self.age))
+        save_string += surround_tag("max_fitness", str(self.max_fitness))
+        species_string = ""
+        for specie in self.species:
+            species_string += surround_tag("specie", str(specie))
+        save_string += surround_tag("species", species_string)
+        return save_string
+
+    @staticmethod
+    def load(string) -> Population:
+        age_str, string = remove_tag("age", string)
+        max_fitness_str, string = remove_tag("max_fitness", string)
+        species_str, string = remove_tag("species", string)
+
+        age = int(age_str)
+        max_fitness = float(max_fitness_str)
+        species = []
+        while species_str:
+            specie_str, species_str = remove_tag("specie", species_str)
+            specie = Specie.load(specie_str)
+            species.append(specie)
+
+        return Population(species, age, max_fitness)

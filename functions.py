@@ -1,3 +1,7 @@
+from typing import List, Tuple
+import re
+
+
 def divide_whole(whole: int, fractions: List[float]):
     top = max(fractions)
     index = fractions.index(top)
@@ -22,15 +26,37 @@ def surround_tag(tag, string):
 
 def remove_tag(tag, string):
     try:
-        open_tag = "<%s>" % tag
-        close_tag = "</%s>" % tag
-        print(string)
-        print(open_tag)
-        print(close_tag)
-        print(string.index(open_tag))
-        print(string.index(close_tag))
-        content = string[string.index(open_tag) + len(open_tag):string.index(close_tag)]
-        remainder = string[string.index(close_tag) + len(close_tag):]
+        open_start, open_end, close_start, close_end = find_outside_tags(tag, string)
+        content = string[open_end: close_start]
+        remainder = string[close_end:]
         return content, remainder
-    except Exception:
+    except StopIteration:
         return None, None
+
+
+def find_outside_tags(tag, string) -> Tuple[int, int, int, int]:
+    open_tag = "<%s>" % tag
+    close_tag = "</%s>" % tag
+    opens = re.finditer(open_tag, string)
+    closes = re.finditer(close_tag, string)
+    open = 1
+    open_tag_real = opens.__next__()
+
+    try:
+        open_tag_curr = opens.__next__()
+    except StopIteration:
+        open_tag_curr = None
+    close_tag_curr = closes.__next__()
+    while open > 0:
+        if open_tag_curr is not None and open_tag_curr.start() < close_tag_curr.start():
+            open += 1
+            try:
+                open_tag_curr = opens.__next__()
+            except StopIteration:
+                open_tag_curr = None
+        else:
+            open -= 1
+            if open > 0:
+                close_tag_curr = closes.__next__()
+
+    return open_tag_real.start(), open_tag_real.end(), close_tag_curr.start(), close_tag_curr.end()
