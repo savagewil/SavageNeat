@@ -1,28 +1,27 @@
 from typing import Tuple, List
 
-import pygame
+from Simulation import Simulation, SimulationState
 
-from Simulation import Simulation
+
+def get_xor_args(number) -> Tuple[float, float]:
+    return float(number % 2.0), float((number // (2.0 ** 1.0)) % 2.0)
 
 
 class XorSimulation(Simulation):
 
-    def __init__(self, visuals: bool = False,
-                 shape: Tuple[int, int, int, int] = None, screen: pygame.Surface = None, batch_size: int = 1):
+    def __init__(self, batch_size: int = 1,
+                 limit: int = 127):
         """
-        A class for representing a simulation
-        :param controls_size: The length of the controls the simulation will use
-        :param data_size: The length of the data the simulation passes to outside agents
-        :param visuals: A boolean to control whether the simulation is displayed or not
-        :param shape: The area to display the Simulation on a surface, [x, y, width, height
-        :param screen: A pygame surface where the Simulation will be displayed
+        A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
+        :param limit: The limit of the number of times the simulation can be run
         """
-        super().__init__(1, 2, visuals, shape, screen, batch_size)
+        super().__init__(1, 2, False, None, None, batch_size)
+        self.batch_size = batch_size
         self.score = [0.0 for i in range(batch_size)]
         self.results = [0 for i in range(batch_size)]
         self.completed = [False for i in range(batch_size)]
-
+        self.limit = limit
 
     def get_data_size(self) -> int:
         """
@@ -46,74 +45,82 @@ class XorSimulation(Simulation):
         :param controls: A tuple of floats, representing the controls
         """
         if batch_id is None:
-            self.score = [0.0 for i in range(batch_size)]
-            self.results = [controls[0] for i in range(batch_size)]
-            self.completed = [True for i in range(batch_size)]
+            self.results = [controls[0] for i in range(self.batch_size)]
+            self.completed = [True for i in range(self.batch_size)]
+
+            inputs = get_xor_args(self.time_count)
+            self.score = [(int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0 for i in range(self.batch_size)]
+
             self.next()
         else:
-
-
             self.results[batch_id] = controls[0]
             self.completed[batch_id] = True
-            self.score[batch_id] =
 
-    @abstractmethod
+            inputs = get_xor_args(self.time_count)
+            self.score[batch_id] = (int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0
+
+            if all(self.completed):
+                self.next()
+
     def apply_controls_batch(self, controls_batch: List[Tuple[float]]):
         """
         Receives a list of controls to apply to a batch of agents
         :param controls_batch: A list of tuples of floats, representing the controls of many agents
         """
-        pass
+        self.results = [control[0] for control in controls_batch]
+        self.completed = [True for i in range(self.batch_size)]
 
-    @abstractmethod
-    def get_data(self, batch_id: int = None) -> Tuple[float]:
+        inputs = get_xor_args(self.time_count)
+        self.score = [(int(inputs[0] != inputs[1]) - result) ** 2.0 for result in self.results]
+
+        self.next()
+
+    def get_data(self, batch_id: int = None) -> Tuple[float, float]:
         """
         Gets a tuple of floats representing the data that the simulation provides to outside agents
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: a tuple of floats representing the data that the simulation provides to outside agents
         """
-        pass
+        return get_xor_args(self.time_count)
 
-    @abstractmethod
-    def get_data_batch(self) -> List[Tuple[float]]:
+    def get_data_batch(self) -> List[Tuple[float, float]]:
         """
         Gets the list of data tuples for all the agents
         :return: a list of tuples of floats representing the data that the simulation provides to a batch of agents
         """
-        pass
+        return [get_xor_args(self.time_count)] * self.batch_size
 
-    @abstractmethod
     def get_state(self, batch_id: int = None) -> SimulationState:
         """
         Returns the state of the current simulation
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The state of the current simulation
         """
-        pass
 
-    @abstractmethod
+        return SimulationState.FINISHED if self.time_count > self.limit else SimulationState.RUNNING
+
     def get_state_batch(self) -> List[SimulationState]:
         """
         Returns the state of every agent in the batch
         :return: A list of the states of the agents in the current simulation
         """
-        pass
+        return [SimulationState.FINISHED if self.time_count > self.limit else SimulationState.RUNNING] * self.batch_size
 
-    @abstractmethod
     def get_score(self, batch_id: int = None) -> float:
         """
         Gets a score from the current simulation
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The score
         """
-        pass
+        return self.score[batch_id]
 
-    @abstractmethod
     def get_score_batch(self) -> List[float]:
         """
         Gets a list of scores from the current simulation
         :return: The list of scores for all agents in the batch
         """
-        pass
+        return self.score.copy()
 
     def next(self):
+        self.time_count += 1
+        self.completed = [False for i in range(self.batch_size)]
