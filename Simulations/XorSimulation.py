@@ -10,7 +10,7 @@ def get_xor_args(number) -> Tuple[float, float]:
 class XorSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 127):
+                 limit: int = 19):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time

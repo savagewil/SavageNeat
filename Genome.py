@@ -14,7 +14,7 @@ from processing_genes import process_genes
 
 
 class Genome:
-    def __init__(self, genes: List[Gene], input_size: int, output_size: int):
+    def __init__(self, genes: List[Gene], input_size: int, output_size: int, gene_pool: GenePool):
         """
         The genome class is a collection of genes which represents a network
         :param genes: The genes of the genome
@@ -22,7 +22,7 @@ class Genome:
         :param output_size: The number of output nodes
         """
         self.genes: List[Gene] = genes  # its is assumed that the genes will be in sorted order
-        weight_matrix, enabled_matrix, middle_size, middles = process_genes(self.genes, input_size, output_size)
+        weight_matrix, enabled_matrix, middle_size, middles = process_genes(self.genes, input_size, output_size, gene_pool)
 
         self.network: Network = Network(weight_matrix, enabled_matrix, input_size, output_size, middle_size)
         self.raw_fitness: float = 0

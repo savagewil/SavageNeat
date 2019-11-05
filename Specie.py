@@ -80,7 +80,8 @@ class Specie:
 
         new_genomes = []
 
-        for i in range(count - (1 if conditions.species_keep_champion else 0)):
+        for i in range(count - (1 if conditions.species_keep_champion and
+                                     conditions.species_champion_limit < len(self.genomes) else 0)):
             if random.random() < conditions.species_asexual_probability:
                 selected_genome = species_genomes[i % len(species_genomes)]
                 new_genome = selected_genome.breed(selected_genome, gene_pool, conditions)
@@ -93,7 +94,7 @@ class Specie:
                 father_genome = random.choice(species_genomes)
                 new_genome = mother_genome.breed(father_genome, gene_pool, conditions)
             new_genomes.append(new_genome)
-        if conditions.species_keep_champion:
+        if conditions.species_keep_champion and conditions.species_champion_limit < len(self.genomes):
             new_genomes.append(species_genomes[0])
 
         return new_genomes

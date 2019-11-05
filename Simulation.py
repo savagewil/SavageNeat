@@ -6,7 +6,7 @@ import pygame
 import enum
 
 
-class SimulationState(enum):
+class SimulationState(enum.Enum):
     """
     SimulationState is an Enumeration which represents the state a simulation is currently in
     """

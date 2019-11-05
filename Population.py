@@ -9,8 +9,7 @@ from GenePool import GenePool
 from Genome import Genome
 from Simulation import Simulation, SimulationState
 from Specie import Specie
-from formulas import divide_whole
-from functions import surround_tag, remove_tag
+from functions import surround_tag, remove_tag, divide_whole
 
 
 class Population:

@@ -26,21 +26,28 @@ class NeatApplication:
         self.past: List[Generation] = []
         if load_file is None:
             gene_pool = GenePool(0, simulation.get_data_size() + 1, {})
-            genomes = self.start_genomes(gene_pool)
+            genomes = self.start_genomes(gene_pool, conditions)
             population = Population([])
             population.add_all_genomes(genomes, conditions)
             self.current_generation = Generation(0, population, gene_pool.next())
         else:
             raise NotImplementedError("Saving is coming soon")
 
-    def start_genomes(self, gene_pool: GenePool) -> List[Genome]:
+    def start_genomes(self, gene_pool: GenePool, conditions: Conditions) -> List[Genome]:
         """
         Creates the starter genomes
+        :param conditions: The conditions to use when creating new genes
         :param gene_pool: The gene pool to update with the starter genomes
         :return: A list of starter genomes
         """
         in_size = self.simulation.get_data_size()
         out_size = self.simulation.get_controls_size()
+
+        for in_ in range(1, in_size + 1):
+            gene_pool.node_depths[in_] = conditions.app_start_node_depth
+
+        for out_ in range(0, -out_size, -1):
+            gene_pool.node_depths[out_] = conditions.app_end_node_depth
 
         starter_genomes = []
 
@@ -56,7 +63,7 @@ class NeatApplication:
             for gene in new_genes:
                 gene.weight = (random.random() * (self.conditions.gene_max_weight - self.conditions.gene_min_weight) +
                                self.conditions.gene_min_weight)
-            starter_genomes.append(Genome(new_genes, in_size, out_size))
+            starter_genomes.append(Genome(new_genes, in_size, out_size, gene_pool))
 
         return starter_genomes
 

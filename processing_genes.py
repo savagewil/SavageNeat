@@ -25,10 +25,10 @@ def process_genes(genes: List[Gene], input_size: int, output_size: int, gene_poo
         nodes.add(connection_gene.out_node)
 
         if connection_gene.in_node >= input_size:
-            middles.add(connection_gene[1])
+            middles.add(connection_gene.in_node)
 
         if connection_gene.out_node > 0:
-            middles.add(connection_gene[2])
+            middles.add(connection_gene.out_node)
 
     list(map(nodes.add, range(input_size)))
     list(map(nodes.add, range(-output_size, 0)))

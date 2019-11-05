@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Dict
 
-from Gene import Gene, StructureGene
+from typing import Dict
+import Gene
+import StructureGene
 from functions import surround_tag, remove_tag, load_dict, save_dict
 
 
@@ -16,11 +17,11 @@ class GenePool:
         """
         self.innovation_number: int = innovation_number
         self.node_number: int = node_number
-        self.connection_innovations: Dict[StructureGene, int] = {}
-        self.node_innovations: Dict[Gene, int] = {}
+        self.connection_innovations: Dict[StructureGene.StructureGene, int] = {}
+        self.node_innovations: Dict[Gene.Gene, int] = {}
         self.node_depths: Dict[int: int] = node_depths
 
-    def get_innovation_number(self, gene: StructureGene):
+    def get_innovation_number(self, gene: StructureGene.StructureGene):
         """
         Gets the innovation number associated with a Structure Gene
         if the innovation is already discovered in the current generation
@@ -35,7 +36,7 @@ class GenePool:
             self.innovation_number += 1
             return self.innovation_number - 1
 
-    def get_node_number(self, gene: Gene):
+    def get_node_number(self, gene: Gene.Gene):
         """
         Gets the node number associated with a Gene
         if the innovation is already discovered in the current generation
@@ -92,8 +93,8 @@ class GenePool:
 
         innovation_number = int(innovation_number_str)
         node_number = int(node_number_str)
-        connection_innovations = load_dict(connection_innovations_str, StructureGene, int)
-        node_innovations = load_dict(node_innovations_str, Gene, int)
+        connection_innovations = load_dict(connection_innovations_str, StructureGene.StructureGene, int)
+        node_innovations = load_dict(node_innovations_str, Gene.Gene, int)
         node_depths = load_dict(node_depths_str, int, int)
 
         gene_pool = GenePool(innovation_number, node_number, node_depths)

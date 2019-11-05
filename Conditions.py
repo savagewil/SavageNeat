@@ -9,7 +9,7 @@ class Conditions:
                  genome_weight_coefficient: float, genome_disjoint_coefficient: float, genome_excess_coefficient: float,
 
                  species_age_fertility_limit: int, species_threshold: float,
-                 species_keep_champion: bool, species_niche_divide_min: int,
+                 species_keep_champion: bool, species_champion_limit:int, species_niche_divide_min: int,
 
                  population_age_limit: int, population_size: int,
 
@@ -34,6 +34,7 @@ class Conditions:
         self.species_age_fertility_limit: int = species_age_fertility_limit
         self.species_threshold: float = species_threshold
         self.species_keep_champion: bool = species_keep_champion
+        self.species_champion_limit: int = species_champion_limit
         self.species_niche_divide_min: int = species_niche_divide_min
 
         self.population_age_limit: int = population_age_limit

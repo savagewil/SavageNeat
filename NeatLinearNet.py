@@ -8,7 +8,7 @@ from formulas import sigmoid_neat, randomize, color_formula, \
     color_formula_line_helper, draw_circle, draw_line_helper, encode_list, decode_list, to_bool
 
 
-class NeatLinearNet(Net):
+class NeatLinearNet(Net.Net):
     def __init__(self,
                  in_dem: int,
                  out_dem: int,
