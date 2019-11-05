@@ -61,7 +61,7 @@ class Population:
         :param genome: The genome to add into the population
         :param conditions: The conditions to use when comparing the genome to the species
         """
-        added = True
+        added = False
         for specie in self.species:
             if specie.add(genome, conditions):
                 added = True

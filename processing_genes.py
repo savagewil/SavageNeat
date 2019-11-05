@@ -31,7 +31,7 @@ def process_genes(genes: List[Gene], input_size: int, output_size: int, gene_poo
             middles.add(connection_gene.out_node)
 
     list(map(nodes.add, range(input_size)))
-    list(map(nodes.add, range(-output_size, 0)))
+    list(map(nodes.add, range(0, -output_size, -1)))
     nodes = list(nodes)
     nodes_with_depth = list(map(lambda node: (gene_pool.get_depth(node), node), nodes))
     nodes.sort()
