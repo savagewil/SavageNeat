@@ -4,11 +4,11 @@ from Simulation import Simulation, SimulationState
 import numpy
 
 
-def get_xor_args(number) -> Tuple[float, float, float]:
-    return float(number % 2.0), float((number // (2.0 ** 1.0)) % 2.0), 1.0
+def get_args(number) -> Tuple[float, float]:
+    return float(number % 2), 1.0
 
 
-class XorSimulation(Simulation):
+class EqualSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
                  limit: int = 19):
@@ -29,7 +29,7 @@ class XorSimulation(Simulation):
         Get the size of the data the simulation passes to an outside agent
         :return: The length of the data array
         """
-        return 3
+        return 2
 
     def get_controls_size(self) -> int:
         """
@@ -49,16 +49,16 @@ class XorSimulation(Simulation):
             self.results = [controls[0] for i in range(self.batch_size)]
             self.completed = [True for i in range(self.batch_size)]
 
-            inputs = get_xor_args(self.time_count)
-            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in range(self.batch_size)]
+            inputs = get_args(self.time_count)
+            self.score += [1.0 - ((inputs[0] - self.results[i]) ** 2.0) for i in range(self.batch_size)]
 
             self.next()
         else:
             self.results[batch_id] = controls[0]
             self.completed[batch_id] = True
 
-            inputs = get_xor_args(self.time_count)
-            self.score[batch_id] += 1.0 - ((int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0)
+            inputs = get_args(self.time_count)
+            self.score[batch_id] += 1.0 - ((inputs[0] - self.results[batch_id]) ** 2.0)
 
             if all(self.completed):
                 self.next()
@@ -71,26 +71,26 @@ class XorSimulation(Simulation):
         self.results = [control[0] for control in controls_batch]
         self.completed = [True for i in range(self.batch_size)]
 
-        inputs = get_xor_args(self.time_count)
-        self.score += [1.0 - ((int(inputs[0] != inputs[1]) - result) ** 2.0) for result in self.results]
+        inputs = get_args(self.time_count)
+        self.score += [1.0 - ((inputs[0] - result) ** 2.0) for result in self.results]
         # print(self.score)
 
         self.next()
 
-    def get_data(self, batch_id: int = None) -> Tuple[float, float, float]:
+    def get_data(self, batch_id: int = None) -> Tuple[float, float]:
         """
         Gets a tuple of floats representing the data that the simulation provides to outside agents
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: a tuple of floats representing the data that the simulation provides to outside agents
         """
-        return get_xor_args(self.time_count)
+        return get_args(self.time_count)
 
-    def get_data_batch(self) -> List[Tuple[float, float, float]]:
+    def get_data_batch(self) -> List[Tuple[float, float]]:
         """
         Gets the list of data tuples for all the agents
         :return: a list of tuples of floats representing the data that the simulation provides to a batch of agents
         """
-        return [get_xor_args(self.time_count)] * self.batch_size
+        return [get_args(self.time_count)] * self.batch_size
 
     def get_state(self, batch_id: int = None) -> SimulationState:
         """

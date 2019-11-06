@@ -6,6 +6,7 @@ import GenePool
 
 from functions import surround_tag, remove_tag
 
+
 class Gene:
     def __init__(self, weight: float, in_node: int, out_node: int, innovation_number: int,
                  enabled: bool = True, gene_pool: GenePool.GenePool = None):
@@ -35,16 +36,19 @@ class Gene:
         """
         if random.random() < conditions.gene_weight_probability:
             if random.random() < conditions.gene_random_probability:
-                return Gene(random.random() * (conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
-                            self.in_node, self.out_node, self.innovation_number, self.enabled)
+                new_gene = Gene(random.random() * (
+                            conditions.gene_max_weight - conditions.gene_min_weight) + conditions.gene_min_weight,
+                                self.in_node, self.out_node, self.innovation_number, self.enabled)
+                return new_gene
             else:
-                return Gene(min(conditions.gene_max_weight,
-                                max(conditions.gene_min_weight,
-                                    (self.weight +
-                                     random.random() *
-                                     2 * conditions.gene_weight_shift
-                                     - conditions.gene_weight_shift))),
-                            self.in_node, self.out_node, self.innovation_number, self.enabled)
+                new_gene = Gene(min(conditions.gene_max_weight,
+                                    max(conditions.gene_min_weight,
+                                        (self.weight +
+                                         random.random() *
+                                         2 * conditions.gene_weight_shift
+                                         - conditions.gene_weight_shift))),
+                                self.in_node, self.out_node, self.innovation_number, self.enabled)
+                return new_gene
         else:
             return self.copy()
 
@@ -94,7 +98,8 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number <= other.innovation_number
         else:
-            raise TypeError("Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
+            raise TypeError(
+                "Less than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __gt__(self, other: Gene) -> bool:
         """
@@ -122,7 +127,8 @@ class Gene:
         if isinstance(other, Gene):
             return self.innovation_number >= other.innovation_number
         else:
-            raise TypeError("Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
+            raise TypeError(
+                "Greater than or equal is not supported between %s and %s" % (str(type(self)), str(type(other))))
 
     def __hash__(self):
         """
@@ -163,5 +169,4 @@ class Gene:
         innovation_number = int(innovation_number_str)
         enabled = bool(enabled_str)
 
-        return Gene(weight,in_node, out_node, innovation_number, enabled)
-
+        return Gene(weight, in_node, out_node, innovation_number, enabled)

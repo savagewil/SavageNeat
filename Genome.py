@@ -21,6 +21,7 @@ class Genome:
         :param input_size: The number of input nodes
         :param output_size: The number of output nodes
         """
+        assert len(genes) > 0
         self.genes: List[Gene] = genes  # its is assumed that the genes will be in sorted order
         weight_matrix, enabled_matrix, middle_size, middles = process_genes(self.genes, input_size, output_size, gene_pool)
         # print("GENOME",weight_matrix.shape, enabled_matrix.shape)
@@ -146,8 +147,8 @@ class Genome:
         while len(self.genes) > self_index and len(other.genes) > other_index:
             if self.genes[self_index] == other.genes[other_index]:
                 new_gene = self.genes[self_index].copy()
-                new_gene.weight = random.choice([self.genes[self_index].weight, other.genes[self_index].weight])
-                new_gene.enabled = ((self.genes[self_index].enabled and other.genes[self_index].enabled) or
+                new_gene.weight = random.choice([self.genes[self_index].weight, other.genes[other_index].weight])
+                new_gene.enabled = ((self.genes[self_index].enabled and other.genes[other_index].enabled) or
                                     random.random() > conditions.genome_disable_probability)
                 new_genes.append(new_gene)
                 self_index += 1
@@ -161,8 +162,8 @@ class Genome:
                 self_index += 1
             else:
                 if self.raw_fitness <= other.raw_fitness:
-                    new_gene = other.genes[self_index].copy()
-                    new_gene.enabled = (other.genes[self_index].enabled or
+                    new_gene = other.genes[other_index].copy()
+                    new_gene.enabled = (other.genes[other_index] .enabled or
                                         random.random() > conditions.genome_disable_probability)
                     new_genes.append(new_gene)
                 other_index += 1

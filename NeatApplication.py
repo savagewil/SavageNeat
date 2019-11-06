@@ -21,8 +21,8 @@ class NeatApplication:
         :param simulation: The simulation Neat will be running
         :param load_file: A file to load previous data from
         """
-        self.simulation = simulation
-        self.conditions = conditions
+        self.simulation: Simulation = simulation
+        self.conditions: Conditions = conditions
         self.past: List[Generation] = []
         if load_file is None:
             gene_pool = GenePool(0, simulation.get_data_size() + 1, {})
@@ -30,7 +30,7 @@ class NeatApplication:
             population = Population([])
             population.add_all_genomes(genomes, conditions)
             population.clear_empty_species()
-            self.current_generation = Generation(0, population, gene_pool.next())
+            self.current_generation: Generation = Generation(0, population, gene_pool.next())
         else:
             raise NotImplementedError("Saving is coming soon")
 
@@ -69,6 +69,17 @@ class NeatApplication:
         return starter_genomes
 
     def run(self, batched=False, batch_size=None, verbosity=0):
+        if verbosity > 0:
+            print(" ======== Starting Generation %d ======== " % self.current_generation.generation)
+            print("Species Count: %d" % len(self.current_generation.population.species))
+            if verbosity > 1:
+                for specie_index in range(len(self.current_generation.population.species)):
+                    print(" ======== Specie %d ======== " % specie_index)
+                    print("Count: %d" % len(self.current_generation.population.species[specie_index].genomes))
+                    if verbosity > 2:
+                        for gene in self.current_generation.population.species[specie_index].representative.genes:
+                            print("Gene", gene.in_node, gene.out_node, gene.weight)
+
         self.simulation.restart()
         self.current_generation.run(self.simulation, self.conditions, batched, batch_size)
         if verbosity > 0:
@@ -76,6 +87,8 @@ class NeatApplication:
         next_gen = self.current_generation.next(self.conditions)
         self.past.insert(0, next_gen)
         self.current_generation = next_gen
+        if verbosity > 0:
+            print(self.current_generation.get_score())
 
     def save(self, file_path):
         save_string = ""

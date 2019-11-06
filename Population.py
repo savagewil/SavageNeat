@@ -132,9 +132,7 @@ class Population:
         :param conditions: The conditions to use when reproducing
         :return: The next population
         """
-        print(len(self.species))
         self.species.sort(key=lambda specie: specie.niche_fitness)
-        print(len(self.species))
         if len(self.species) > 1:
             genomes = self.species[0].genomes + self.species[1].genomes
         else:
@@ -183,7 +181,7 @@ class Population:
         Removes every empty species
         :return: A list of the removed species
         """
-        empty_species = list(filter(lambda specie: specie.genomes is [], self.species))
+        empty_species = list(filter(lambda specie: len(specie.genomes) == 0, self.species))
         for specie in empty_species:
             self.species.remove(specie)
         return empty_species

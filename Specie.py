@@ -11,7 +11,7 @@ from functions import surround_tag, remove_tag
 
 
 class Specie:
-    def __init__(self, representative: Genome, genomes: List[Genome] = None, age: int = 0, max_fitness: float = None):
+    def __init__(self, representative: Genome, genomes: List[Genome] = None, age: int = 0, max_fitness: float = 0.0):
         """
         The Species class represents a collection of Genomes which are all genetically similar to each other
         :param representative: A genome that represents the whole species
@@ -31,7 +31,7 @@ class Specie:
         :param conditions: The conditions to use to check
         :return: True if the species is young enough to reproduce
         """
-        return self.age < conditions.species_age_fertility_limit
+        return self.age < conditions.species_age_fertility_limit and len(self.genomes) > 0
 
     def compare(self, genome: Genome, conditions: Conditions) -> float:
         """

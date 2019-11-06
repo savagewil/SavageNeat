@@ -1,5 +1,6 @@
 from NeatApplication import NeatApplication
 from Conditions import Conditions
+from Simulations.EqualSimulation import EqualSimulation
 from Simulations.XorSimulation import XorSimulation
 
 if __name__ == '__main__':
@@ -11,9 +12,9 @@ if __name__ == '__main__':
         genome_connection_probability=0.05,
         species_asexual_probability=0.25,
         species_interspecies_reproduction_probability=0.001,
-        gene_max_weight=-1.0,
-        gene_min_weight=1.0,
-        gene_weight_shift=.5,
+        gene_max_weight=1.0,
+        gene_min_weight=-1.0,
+        gene_weight_shift=.001,
         genome_weight_coefficient=0.4,
         genome_disjoint_coefficient=1.0,
         genome_excess_coefficient=1.0,
