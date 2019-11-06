@@ -29,6 +29,7 @@ class NeatApplication:
             genomes = self.start_genomes(gene_pool, conditions)
             population = Population([])
             population.add_all_genomes(genomes, conditions)
+            population.clear_empty_species()
             self.current_generation = Generation(0, population, gene_pool.next())
         else:
             raise NotImplementedError("Saving is coming soon")
@@ -68,6 +69,7 @@ class NeatApplication:
         return starter_genomes
 
     def run(self, batched=False, batch_size=None, verbosity=0):
+        self.simulation.restart()
         self.current_generation.run(self.simulation, self.conditions, batched, batch_size)
         if verbosity > 0:
             print(self.current_generation.get_score())
@@ -106,4 +108,4 @@ class NeatApplication:
         while time is None or time > 0:
             if time is not None:
                 time -= 1
-            self.run(verbosity=verbosity)
+            self.run(verbosity=verbosity, batched=batched, batch_size=batch_size)

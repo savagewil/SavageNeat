@@ -18,7 +18,7 @@ class NeatLinearNet(Net.Net):
                  activation: Callable = sigmoid_neat,
                  color_formula_param: Callable = color_formula,
                  weights: numpy.array = None):
-        super(NeatLinearNet, self).__init__(in_dem + 1, out_dem, activation, lambda x: x, color_formula_param)
+        super(NeatLinearNet, self).__init__(in_dem, out_dem, activation, lambda x: x, color_formula_param)
         self.middle_dem: int = middle_dem
 
         self.score = 0
@@ -27,6 +27,10 @@ class NeatLinearNet(Net.Net):
         self.node_values = numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_sum = numpy.zeros((1, self.middle_dem + self.out_dem))
         self.node_back = numpy.zeros((1, self.in_dem + self.middle_dem))
+
+        # print("LINEAR NET 1:", weights.shape, enabled_weights.shape)
+        # print("LINEAR NET 2:", self.in_dem, self.middle_dem, self.out_dem)
+        # print("LINEAR NET 3:", self.node_values.shape, self.node_sum.shape, self.node_back.shape)
         if weights is not None:
             self.weights = weights
         else:
@@ -117,7 +121,7 @@ class NeatLinearNet(Net.Net):
                 self.out_radius_range))
 
     def set_in(self, array: Tuple[float]):
-        array = array + (1.0,)
+        array = array
         assert len(array) == self.in_dem
         self.input_nodes = numpy.array(array, ndmin=2)
         self.node_values = numpy.zeros((1, self.middle_dem + self.out_dem))
@@ -131,15 +135,20 @@ class NeatLinearNet(Net.Net):
         # print(self.in_dem)
         # print(self.weights.shape)
         self.node_sum = numpy.dot(self.input_nodes, self.weights[:self.in_dem])
+        # print(self.node_sum)
 
         for i in range(self.middle_dem):
             self.node_values[0][i] = self.activation_function(self.node_sum[0][i])
+            # print(self.node_values[0][i])
 
             self.node_sum = numpy.add(self.node_sum, numpy.multiply(self.node_values[0][i],
                                                                     self.weights[self.in_dem + i:self.in_dem + i + 1]))
 
         self.node_values = self.activation_function(self.node_sum)
 
+        # print("LINEAR NET 1:", self.weights.shape, self.enabled_weights.shape)
+        # print("LINEAR NET 2:", self.in_dem, self.middle_dem, self.out_dem)
+        # print("LINEAR NET 3:", self.node_values.shape, self.node_sum.shape, self.node_back.shape)
         return self.node_values[0][self.middle_dem:]
 
     def save(self) -> str:

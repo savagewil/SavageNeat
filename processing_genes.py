@@ -18,20 +18,26 @@ def process_genes(genes: List[Gene], input_size: int, output_size: int, gene_poo
     :return: A Tuple containing, Weight Adjacency Matrix, Enabled Adjacency Matrix, Number of middle nodes,
         and the list of middle nodes
     """
+    # print("PROCESSING In:", '\n\t'.join([str(gene) for gene in genes]))
+    # print("PROCESSING In:", input_size, output_size)
     nodes = set()
     middles = set()
     for connection_gene in genes:
         nodes.add(connection_gene.in_node)
         nodes.add(connection_gene.out_node)
 
-        if connection_gene.in_node >= input_size:
+        if connection_gene.in_node > input_size:
             middles.add(connection_gene.in_node)
 
         if connection_gene.out_node > 0:
             middles.add(connection_gene.out_node)
 
-    list(map(nodes.add, range(input_size)))
+    list(map(nodes.add, range(1, input_size + 1)))
     list(map(nodes.add, range(0, -output_size, -1)))
+    # print("PROCESSING In:",
+    #       list(map(nodes.add, range(1, input_size + 1))),
+    #       list(map(nodes.add, range(0, -output_size, -1))))
+
     nodes = list(nodes)
     nodes_with_depth = list(map(lambda node: (gene_pool.get_depth(node), node), nodes))
     nodes.sort()
@@ -50,4 +56,5 @@ def process_genes(genes: List[Gene], input_size: int, output_size: int, gene_poo
             end = node_indices[gene.out_node] - input_size
             enabled_matrix[start][end] = True
             weight_matrix[start][end] = gene.weight
+    # print("PROCESSING OUT:", weight_matrix.shape, enabled_matrix.shape, middle_size, list(middles), middles)
     return weight_matrix, enabled_matrix, middle_size, list(middles)

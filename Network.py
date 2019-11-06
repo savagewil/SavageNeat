@@ -18,8 +18,9 @@ class Network:
         :param middle_size: The number of hidden nodes in the network
         :param cache_size: The size, in cache entries, of the cache for saving answers
         """
+        # print("NETWORK", weight_matrix.shape, enabled_matrix.shape)
         self.neural_net: NeatLinearNet = NeatLinearNet(input_size, output_size, middle_size,
-                                                       weight_matrix, enabled_matrix)
+                                                       weights=weight_matrix, enabled_weights=enabled_matrix)
         self.cache_size: int = cache_size
         self.cache: dict = {}
         self.batch_id: int = batch_id

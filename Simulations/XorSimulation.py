@@ -1,6 +1,7 @@
 from typing import Tuple, List
 
 from Simulation import Simulation, SimulationState
+import numpy
 
 
 def get_xor_args(number) -> Tuple[float, float]:
@@ -18,7 +19,7 @@ class XorSimulation(Simulation):
         """
         super().__init__(1, 2, False, None, None, batch_size)
         self.batch_size = batch_size
-        self.score = [0.0 for i in range(batch_size)]
+        self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
         self.completed = [False for i in range(batch_size)]
         self.limit = limit
@@ -49,7 +50,7 @@ class XorSimulation(Simulation):
             self.completed = [True for i in range(self.batch_size)]
 
             inputs = get_xor_args(self.time_count)
-            self.score = [(int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0 for i in range(self.batch_size)]
+            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in range(self.batch_size)]
 
             self.next()
         else:
@@ -57,7 +58,7 @@ class XorSimulation(Simulation):
             self.completed[batch_id] = True
 
             inputs = get_xor_args(self.time_count)
-            self.score[batch_id] = (int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0
+            self.score[batch_id] += 1.0 - ((int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0)
 
             if all(self.completed):
                 self.next()
@@ -71,7 +72,8 @@ class XorSimulation(Simulation):
         self.completed = [True for i in range(self.batch_size)]
 
         inputs = get_xor_args(self.time_count)
-        self.score = [(int(inputs[0] != inputs[1]) - result) ** 2.0 for result in self.results]
+        self.score += [1.0 - ((int(inputs[0] != inputs[1]) - result) ** 2.0) for result in self.results]
+        # print(self.score)
 
         self.next()
 
@@ -124,3 +126,7 @@ class XorSimulation(Simulation):
     def next(self):
         self.time_count += 1
         self.completed = [False for i in range(self.batch_size)]
+
+    def restart(self):
+        self.time_count = 0
+        self.score = numpy.array([0.0 for i in range(self.batch_size)])

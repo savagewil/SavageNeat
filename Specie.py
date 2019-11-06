@@ -137,7 +137,7 @@ class Specie:
         for genome in self.genomes:
             niche_sum += genome.raw_fitness
             max_fitness = max(max_fitness, genome.raw_fitness)
-        if max_fitness > self.max_fitness:
+        if self.max_fitness is None or max_fitness > self.max_fitness:
             self.max_fitness = max_fitness
             self.age = 0
         if conditions.species_niche_divide_min < len(self.genomes):

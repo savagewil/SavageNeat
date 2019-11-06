@@ -38,12 +38,13 @@ class Population:
         else:
             genomes = self.get_genomes()
             fit_species = list(filter(lambda specie: specie.fertile(conditions), self.species))
+            assert len(fit_species) > 0
 
             total_fitness = sum(list(map(lambda specie: specie.niche_fitness, fit_species)))
 
             children_count = list(map(lambda specie: specie.niche_fitness * conditions.population_size / total_fitness,
                                       fit_species))
-            children_count = formulas.divide_whole(conditions.population_size, children_count)
+            children_count = divide_whole(conditions.population_size, children_count)
 
             new_species = list(map(Specie.next, fit_species))
             new_genomes = []
@@ -52,6 +53,7 @@ class Population:
 
             new_population = Population(new_species, self.age + 1, self.max_fitness)
             new_population.add_all_genomes(new_genomes, conditions)
+            new_population.clear_empty_species()
 
             return new_population
 
@@ -130,16 +132,22 @@ class Population:
         :param conditions: The conditions to use when reproducing
         :return: The next population
         """
+        print(len(self.species))
         self.species.sort(key=lambda specie: specie.niche_fitness)
-        genomes = self.species[0].genomes + self.species[1].genomes
+        print(len(self.species))
+        if len(self.species) > 1:
+            genomes = self.species[0].genomes + self.species[1].genomes
+        else:
+            genomes = self.species[0].genomes
         genomes.sort()
         new_genomes = []
         for i in range(conditions.population_size):
             father_genome = genomes[i % len(genomes)]
             mother_genome = random.choice(genomes)
             new_genomes.append(father_genome.breed(mother_genome, gene_pool, conditions))
-        new_population = Population([], age=self.age + 1, max_fitness=self.max_fitness)
+        new_population = Population([], age=0, max_fitness=self.max_fitness)
         new_population.add_all_genomes(new_genomes, conditions)
+        new_population.clear_empty_species()
         return new_population
 
     def add_all_genomes(self, genomes: List[Genome], conditions: Conditions):
@@ -186,7 +194,7 @@ class Population:
         """
         max_fitness = max(list(map(lambda specie: specie.max_fitness, self.species)))
 
-        if max_fitness > self.max_fitness:
+        if self.max_fitness is None or max_fitness > self.max_fitness:
             self.max_fitness = max_fitness
             self.age = 0
 

@@ -23,6 +23,7 @@ class Genome:
         """
         self.genes: List[Gene] = genes  # its is assumed that the genes will be in sorted order
         weight_matrix, enabled_matrix, middle_size, middles = process_genes(self.genes, input_size, output_size, gene_pool)
+        # print("GENOME",weight_matrix.shape, enabled_matrix.shape)
 
         self.network: Network = Network(weight_matrix, enabled_matrix, input_size, output_size, middle_size)
         self.raw_fitness: float = 0
@@ -67,7 +68,7 @@ class Genome:
         new_genes.append(in_gene)
         new_genes.append(out_gene)
 
-        return Genome(new_genes)
+        return Genome(new_genes,self.input_size,self.output_size, gene_pool)
 
     def add_connection(self, gene_pool: GenePool, conditions: Conditions) -> Genome:
         """
@@ -80,7 +81,7 @@ class Genome:
         starts = self.start_nodes + self.middle_nodes
         start_node = None
         while (not endings) and starts:
-            start_node = random.choice(self.start_nodes + self.middle_nodes)
+            start_node = random.choice(starts)
             starts.remove(start_node)
 
             endings = list(filter(lambda end_node: gene_pool.get_depth(end_node) > gene_pool.get_depth(start_node),
@@ -97,9 +98,11 @@ class Genome:
                             start_node, end_node, 0, gene_pool=gene_pool)
             new_genes = list(map(Gene.copy, self.genes))
             new_genes.append(new_gene)
-            return Genome(new_genes)
+            return Genome(new_genes, self.input_size, self.output_size, gene_pool)
         else:
-            raise NetworkFullError("add connection")
+            # raise NetworkFullError("add connection")
+            # print("""Network full""")
+            return self
 
     def compare(self, other: Genome, conditions: Conditions) -> float:
         """
@@ -167,7 +170,7 @@ class Genome:
         for i in range(len(new_genes)):
             new_genes[i] = new_genes[i].mutate(conditions)
 
-        new_genome = Genome(new_genes, self.input_size, self.output_size)
+        new_genome = Genome(new_genes, self.input_size, self.output_size,gene_pool)
 
         if random.random() < conditions.genome_connection_probability:
             new_genome = new_genome.add_connection(gene_pool, conditions)
