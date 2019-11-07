@@ -11,7 +11,7 @@ def get_xor_args(number) -> Tuple[float, float, float]:
 class XorSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 19):
+                 limit: int = 20):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
@@ -21,6 +21,7 @@ class XorSimulation(Simulation):
         self.batch_size = batch_size
         self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
+        self.past = numpy.zeros((limit, batch_size))
         self.completed = [False for i in range(batch_size)]
         self.limit = limit
 
@@ -50,7 +51,8 @@ class XorSimulation(Simulation):
             self.completed = [True for i in range(self.batch_size)]
 
             inputs = get_xor_args(self.time_count)
-            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in range(self.batch_size)]
+            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in
+                           range(self.batch_size)]
 
             self.next()
         else:
@@ -99,14 +101,14 @@ class XorSimulation(Simulation):
         :return: The state of the current simulation
         """
 
-        return SimulationState.FINISHED if self.time_count > self.limit else SimulationState.RUNNING
+        return SimulationState.RUNNING if self.time_count < self.limit else SimulationState.FINISHED
 
     def get_state_batch(self) -> List[SimulationState]:
         """
         Returns the state of every agent in the batch
         :return: A list of the states of the agents in the current simulation
         """
-        return [SimulationState.FINISHED if self.time_count > self.limit else SimulationState.RUNNING] * self.batch_size
+        return [SimulationState.RUNNING if self.time_count < self.limit else SimulationState.FINISHED] * self.batch_size
 
     def get_score(self, batch_id: int = None) -> float:
         """
@@ -114,19 +116,36 @@ class XorSimulation(Simulation):
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The score
         """
-        return self.score[batch_id]/self.time_count
+        return self.score[batch_id] / self.time_count
 
     def get_score_batch(self) -> List[float]:
         """
         Gets a list of scores from the current simulation
         :return: The list of scores for all agents in the batch
         """
-        return self.score.copy()/self.time_count
+        return self.score.copy() / self.time_count
 
     def next(self):
+
+        # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
+        # print()
+        self.past[self.time_count, :] = self.results
+        # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
+        # print()
         self.time_count += 1
         self.completed = [False for i in range(self.batch_size)]
 
     def restart(self):
+        expected = numpy.array(
+            list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
+        # print(expected)
+        print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.2f" % cell, row))), self.past))))
+        print(" ".join(list(
+            map(lambda col: "%1.5f" % (numpy.sum(numpy.square(col - expected)) / self.limit), self.past.transpose()))))
+        print(" ".join(list(map(lambda col: "%1.2f" % (numpy.sum(numpy.square(numpy.round(col) - expected)) /
+                                                       self.limit), self.past.transpose()))))
+        print(max(list(map(lambda col: (numpy.sum(numpy.square((col > 0.5) - expected)) /
+                                                       self.limit), self.past.transpose()))))
+        self.past = numpy.zeros((self.limit, self.batch_size))
         self.time_count = 0
         self.score = numpy.array([0.0 for i in range(self.batch_size)])

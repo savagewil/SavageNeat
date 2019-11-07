@@ -7,6 +7,7 @@ class Conditions:
                  gene_max_weight: float, gene_min_weight: float, gene_weight_shift: float,
 
                  genome_weight_coefficient: float, genome_disjoint_coefficient: float, genome_excess_coefficient: float,
+                 genome_min_divide: int,
 
                  species_age_fertility_limit: int, species_threshold: float,
                  species_keep_champion: bool, species_champion_limit:int, species_niche_divide_min: int,
@@ -30,6 +31,7 @@ class Conditions:
         self.genome_weight_coefficient: float = genome_weight_coefficient
         self.genome_disjoint_coefficient: float = genome_disjoint_coefficient
         self.genome_excess_coefficient: float = genome_excess_coefficient
+        self.genome_min_divide: int = genome_min_divide
 
         self.species_age_fertility_limit: int = species_age_fertility_limit
         self.species_threshold: float = species_threshold
@@ -42,3 +44,5 @@ class Conditions:
 
         self.app_start_node_depth = app_start_node_depth
         self.app_end_node_depth = app_end_node_depth
+        self.new_node_count = 0
+        self.new_connection_count = 0

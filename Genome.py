@@ -34,7 +34,7 @@ class Genome:
         self.middle_nodes: List[int] = middles
         self.end_nodes: List[int] = list(range(0, -output_size, -1))
 
-    def add_node(self, gene_pool: GenePool) -> Genome:
+    def add_node(self, gene_pool: GenePool, conditions: Conditions) -> Genome:
         """
         Creates a new genome. Splits a randomly selected connection into two connections which share a new node
 
@@ -46,10 +46,12 @@ class Genome:
 
         The original connection is disabled
 
+        :param conditions: Added for the node count
         :param gene_pool: The GenePool which provides the innovation numbers for the new connections,
          and the node number for the new node
         :return: Returns a copy of the current genome, but with a connection split with a new node added
         """
+        conditions.new_node_count += 1
         splitting_gene: Gene = random.choice(self.genes)
         new_node = gene_pool.get_node_number(splitting_gene)
 
@@ -78,6 +80,7 @@ class Genome:
         :param conditions: The Conditions which control how the range for the weights of the new connection
         :return: Returns a copy of the current genome, but with a new connection
         """
+        conditions.new_connection_count += 1
         endings = []
         starts = self.start_nodes + self.middle_nodes
         start_node = None
@@ -101,6 +104,7 @@ class Genome:
             new_genes.append(new_gene)
             return Genome(new_genes, self.input_size, self.output_size, gene_pool)
         else:
+            conditions.new_connection_count -= 1
             # raise NetworkFullError("add connection")
             # print("""Network full""")
             return self
@@ -115,6 +119,8 @@ class Genome:
         self_index = 0
         other_index = 0
         comparison = 0.0
+        disjoint_coefficient = conditions.genome_disjoint_coefficient / (1 if conditions.genome_min_divide >= len(self.genes) else len(self.genes))
+        excess_coefficient = conditions.genome_excess_coefficient / (1 if conditions.genome_min_divide >= len(self.genes) else len(self.genes))
 
         while len(self.genes) > self_index and len(other.genes) > other_index:
             if self.genes[self_index] == other.genes[other_index]:
@@ -124,13 +130,13 @@ class Genome:
                 self_index += 1
                 other_index += 1
             elif self.genes[self_index] < other.genes[other_index]:
-                comparison += conditions.genome_disjoint_coefficient
+                comparison += disjoint_coefficient
                 self_index += 1
             else:
-                comparison += conditions.genome_disjoint_coefficient
+                comparison += disjoint_coefficient
                 other_index += 1
         comparison += (len(self.genes) - self_index + len(
-            other.genes) - other_index) * conditions.genome_excess_coefficient
+            other.genes) - other_index) * excess_coefficient
         return comparison
 
     def breed(self, other: Genome, gene_pool: GenePool, conditions: Conditions) -> Genome:
@@ -177,7 +183,7 @@ class Genome:
             new_genome = new_genome.add_connection(gene_pool, conditions)
 
         if random.random() < conditions.genome_node_probability:
-            new_genome = new_genome.add_node(gene_pool)
+            new_genome = new_genome.add_node(gene_pool, conditions)
 
         return new_genome
 

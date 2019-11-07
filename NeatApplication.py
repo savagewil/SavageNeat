@@ -13,6 +13,7 @@ from Simulation import Simulation
 from functions import surround_tag, remove_tag
 
 
+
 class NeatApplication:
     def __init__(self, conditions: Conditions, simulation: Simulation, load_file=None):
         """
@@ -83,7 +84,30 @@ class NeatApplication:
         self.simulation.restart()
         self.current_generation.run(self.simulation, self.conditions, batched, batch_size)
         if verbosity > 0:
-            print(self.current_generation.get_score())
+            # print("Sum Genes",
+            #       sum(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+            # print("New Connections:", self.conditions.new_connection_count)
+            # print("New Nodes:", self.conditions.new_node_count)
+            # new_gene_count = 0
+            # self.conditions.new_connection_count = 0
+            # self.conditions.new_node_count = 0
+            # print("Max Genes",
+            #       max(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+            # print("Min Genes",
+            #       min(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+            #
+            # species = self.current_generation.population.species.copy()
+            # species.sort(key=lambda specie: specie.niche_fitness, reverse=True)
+            # print("\tScore\tSize\tAvCon\t\t\tMax\t\tMin")
+            # for specie in species:
+            #     print("\t%0.5f\t%4d\t%.5f  \t%5d\t%5d\t" % (specie.niche_fitness, len(specie.genomes),
+            #                                               (sum(list(map(lambda genome: len(genome.genes),
+            #                                                             specie.genomes))) / len(specie.genomes)),
+            #                                               max(list(map(lambda genome: len(genome.genes),
+            #                                                            specie.genomes))),
+            #                                               min(list(map(lambda genome: len(genome.genes),
+            #                                                            specie.genomes)))))
+            pass
         next_gen = self.current_generation.next(self.conditions)
         self.past.insert(0, next_gen)
         self.current_generation = next_gen
