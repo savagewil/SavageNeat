@@ -13,7 +13,6 @@ from Simulation import Simulation
 from functions import surround_tag, remove_tag
 
 
-
 class NeatApplication:
     def __init__(self, conditions: Conditions, simulation: Simulation, load_file=None):
         """
@@ -73,46 +72,64 @@ class NeatApplication:
         if verbosity > 0:
             print(" ======== Starting Generation %d ======== " % self.current_generation.generation)
             print("Species Count: %d" % len(self.current_generation.population.species))
-            if verbosity > 1:
-                for specie_index in range(len(self.current_generation.population.species)):
+            if verbosity > 2:
+                species = self.current_generation.population.species.copy()
+                species.sort(key=lambda specie: specie.niche_fitness, reverse=True)
+                print("\tScore\tSize\tAvCon\t\t\tMax\t\tMin")
+                for specie in species:
+                    print("\t%0.5f\t%4d\t%.5f  \t%5d\t%5d\t" % (specie.niche_fitness, len(specie.genomes),
+                                                                (sum(list(map(lambda genome: len(genome.genes),
+                                                                              specie.genomes))) / len(specie.genomes)),
+                                                                max(list(map(lambda genome: len(genome.genes),
+                                                                             specie.genomes))),
+                                                                min(list(map(lambda genome: len(genome.genes),
+                                                                             specie.genomes)))))
+                for specie_index in range(len(species)):
                     print(" ======== Specie %d ======== " % specie_index)
-                    print("Count: %d" % len(self.current_generation.population.species[specie_index].genomes))
-                    if verbosity > 2:
-                        for gene in self.current_generation.population.species[specie_index].representative.genes:
+                    print("Count: %d" % len(species[specie_index].genomes))
+                    print("\t%0.5f\t%4d\t%.5f  \t%5d\t%5d\t" % (species[specie_index].niche_fitness,
+                                                                len(species[specie_index].genomes),
+                                                                (sum(list(map(lambda genome: len(genome.genes),
+                                                                              species[specie_index].genomes))) /
+                                                                 len(species[specie_index].genomes)),
+                                                                max(list(map(lambda genome: len(genome.genes),
+                                                                             species[specie_index].genomes))),
+                                                                min(list(map(lambda genome: len(genome.genes),
+                                                                             species[specie_index].genomes)))))
+                    if verbosity > 3:
+                        for gene in species[specie_index].representative.genes:
                             print("Gene", gene.in_node, gene.out_node, gene.weight)
 
         self.simulation.restart()
         self.current_generation.run(self.simulation, self.conditions, batched, batch_size)
-        if verbosity > 0:
-            # print("Sum Genes",
-            #       sum(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
-            # print("New Connections:", self.conditions.new_connection_count)
-            # print("New Nodes:", self.conditions.new_node_count)
-            # new_gene_count = 0
-            # self.conditions.new_connection_count = 0
-            # self.conditions.new_node_count = 0
-            # print("Max Genes",
-            #       max(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
-            # print("Min Genes",
-            #       min(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
-            #
-            # species = self.current_generation.population.species.copy()
-            # species.sort(key=lambda specie: specie.niche_fitness, reverse=True)
-            # print("\tScore\tSize\tAvCon\t\t\tMax\t\tMin")
-            # for specie in species:
-            #     print("\t%0.5f\t%4d\t%.5f  \t%5d\t%5d\t" % (specie.niche_fitness, len(specie.genomes),
-            #                                               (sum(list(map(lambda genome: len(genome.genes),
-            #                                                             specie.genomes))) / len(specie.genomes)),
-            #                                               max(list(map(lambda genome: len(genome.genes),
-            #                                                            specie.genomes))),
-            #                                               min(list(map(lambda genome: len(genome.genes),
-            #                                                            specie.genomes)))))
-            pass
+        if verbosity > 1:
+            print("Sum Genes",
+                  sum(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+            print("New Connections:", self.conditions.new_connection_count)
+            print("New Nodes:", self.conditions.new_node_count)
+
+            self.conditions.new_connection_count = 0
+            self.conditions.new_node_count = 0
+            print("Max Genes",
+                  max(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+            print("Min Genes",
+                  min(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
+
         next_gen = self.current_generation.next(self.conditions)
         self.past.insert(0, next_gen)
         self.current_generation = next_gen
         if verbosity > 0:
+            print(self.current_generation.get_score(),
+                  sum(list(map(lambda genome: genome.raw_fitness,
+                               self.current_generation.population.get_genomes()))) / self.conditions.population_size)
             print(self.current_generation.get_score())
+            LOG_FILE = open("scores.csv", 'a')
+            LOG_FILE.write("%d,%f,%f\n" % (self.current_generation.generation,
+                                           self.current_generation.get_score(),
+                                           sum(list(map(lambda genome: genome.raw_fitness,
+                                                        self.current_generation.population.get_genomes()))) /
+                                           self.conditions.population_size))
+            LOG_FILE.close()
 
     def save(self, file_path):
         save_string = ""

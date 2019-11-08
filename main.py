@@ -4,7 +4,7 @@ from Simulations.EqualSimulation import EqualSimulation
 from Simulations.XorSimulation import XorSimulation
 
 if __name__ == '__main__':
-    Population = 150
+    Population = 500
     conditions = Conditions(
         gene_weight_probability=0.8,
         gene_random_probability=0.1,
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         app_start_node_depth=0,
         app_end_node_depth=100)
 
-    sim = XorSimulation(batch_size=Population)
+    sim = EqualSimulation(batch_size=Population)
     app = NeatApplication(conditions, sim)
 
-    app.main(time=100, batched=True, batch_size=Population, verbosity=1)
+    app.main(time=100, batched=True, batch_size=Population, verbosity=2)

@@ -4,8 +4,11 @@ from Simulation import Simulation, SimulationState
 import numpy
 
 
-def get_args(number) -> Tuple[float, float]:
-    return float(number % 2), 1.0
+def get_args(number) -> Tuple[float, float, float, float, float]:
+    return float(number % 2), \
+           float((number // (2 ** 1)) % 2), \
+           float((number // (2 ** 2)) % 2), \
+           float((number // (2 ** 3)) % 2), 1.0
 
 
 class EqualSimulation(Simulation):
@@ -29,14 +32,14 @@ class EqualSimulation(Simulation):
         Get the size of the data the simulation passes to an outside agent
         :return: The length of the data array
         """
-        return 2
+        return 5
 
     def get_controls_size(self) -> int:
         """
         Get the size of the controls the simulation can receive
         :return: The length of the controls array
         """
-        return 1
+        return 4
 
     def apply_controls(self, controls: Tuple[float], batch_id: int = None):
         """
@@ -50,7 +53,7 @@ class EqualSimulation(Simulation):
             self.completed = [True for i in range(self.batch_size)]
 
             inputs = get_args(self.time_count)
-            self.score += [1.0 - ((inputs[0] - self.results[i]) ** 2.0) for i in range(self.batch_size)]
+            self.score += [1.0 - (sum([((inputs[j] - self.results[j]) ** 2.0)for j in range(len(inputs))])/4)  for i in range(self.batch_size)]
 
             self.next()
         else:
@@ -58,7 +61,7 @@ class EqualSimulation(Simulation):
             self.completed[batch_id] = True
 
             inputs = get_args(self.time_count)
-            self.score[batch_id] += 1.0 - ((inputs[0] - self.results[batch_id]) ** 2.0)
+            self.score[batch_id] += 1.0 - (sum([((inputs[j] - self.results[j]) ** 2.0)for j in range(len(inputs))])/4)
 
             if all(self.completed):
                 self.next()
@@ -72,7 +75,7 @@ class EqualSimulation(Simulation):
         self.completed = [True for i in range(self.batch_size)]
 
         inputs = get_args(self.time_count)
-        self.score += [1.0 - ((inputs[0] - result) ** 2.0) for result in self.results]
+        self.score += [1.0 - (sum([((inputs[j] - self.results[j]) ** 2.0)for j in range(len(inputs))])/4) for result in self.results]
         # print(self.score)
 
         self.next()
@@ -114,14 +117,14 @@ class EqualSimulation(Simulation):
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The score
         """
-        return self.score[batch_id]/self.time_count
+        return self.score[batch_id] / self.time_count
 
     def get_score_batch(self) -> List[float]:
         """
         Gets a list of scores from the current simulation
         :return: The list of scores for all agents in the batch
         """
-        return self.score.copy()/self.time_count
+        return self.score.copy() / self.time_count
 
     def next(self):
         self.time_count += 1
