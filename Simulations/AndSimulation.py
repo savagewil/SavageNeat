@@ -10,8 +10,10 @@ import numpy
 def get_xor_args(number) -> Tuple[float, float, float]:
     return float(number % 2.0), float((number // (2.0 ** 1.0)) % 2.0), 1.0
 
+def and_func(num1, num2):
+    return int(num1 == 1 and num2 == 1)
 
-class XorSimulation(Simulation):
+class AndSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
                  limit: int = 4):
@@ -54,7 +56,7 @@ class XorSimulation(Simulation):
             self.completed = [True for i in range(self.batch_size)]
 
             inputs = get_xor_args(self.time_count)
-            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in
+            self.score += [1.0 - ((and_func(inputs[0], inputs[1]) - self.results[i]) ** 2.0) for i in
                            range(self.batch_size)]
 
             self.next(screen, shape)
@@ -63,7 +65,7 @@ class XorSimulation(Simulation):
             self.completed[batch_id] = True
 
             inputs = get_xor_args(self.time_count)
-            self.score[batch_id] += 1.0 - ((int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0)
+            self.score[batch_id] += 1.0 - ((and_func(inputs[0], inputs[1]) - self.results[batch_id]) ** 2.0)
 
             if all(self.completed):
                 self.next()
@@ -77,7 +79,7 @@ class XorSimulation(Simulation):
         self.completed = [True for i in range(self.batch_size)]
 
         inputs = get_xor_args(self.time_count)
-        self.score += [1.0 - ((int(inputs[0] != inputs[1]) - result) ** 2.0) for result in self.results]
+        self.score += [1.0 - ((and_func(inputs[0], inputs[1]) - result) ** 2.0) for result in self.results]
         # print(self.score)
 
         self.next(screen, shape)
@@ -119,14 +121,14 @@ class XorSimulation(Simulation):
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The score
         """
-        return self.score[batch_id] / (self.time_count+1)
+        return self.score[batch_id] / (self.time_count)
 
     def get_score_batch(self) -> List[float]:
         """
         Gets a list of scores from the current simulation
         :return: The list of scores for all agents in the batch
         """
-        return self.score.copy() / (self.time_count+1)
+        return self.score.copy() / (self.time_count)
 
     def next(self, screen=None, shape=None):
         if screen and shape:
@@ -141,7 +143,7 @@ class XorSimulation(Simulation):
 
     def restart(self):
         expected = numpy.array(
-            list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
+            list(map(lambda inputs: int(inputs[0] == 1 and inputs[1] == 1), list(map(get_xor_args, list(range(self.limit)))))))
         # print(expected)
         print("PAST")
         print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
@@ -153,7 +155,7 @@ class XorSimulation(Simulation):
         print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
                                                        self.limit), self.past.transpose()))))
         print("SCORE")
-        print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / self.time_count))))
+        print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / (self.time_count)))))
         print("BEST SCORE")
         print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
                                         self.limit), self.past.transpose()))))

@@ -92,7 +92,9 @@ class Population:
         :param simulation: The simulation to run
         :param conditions: The conditions to use when running the simulation
         """
-        print(screen, shape)
+        if shape and screen:
+            print(screen, shape)
+            pygame.time.delay(5000)
         if batched:
             genomes = self.get_genomes()
             batches = []
@@ -117,7 +119,7 @@ class Population:
                             controls.append([0.0] * simulation.get_controls_size())
                     if screen and shape:
                         self.draw_population(screen, shape)
-                    simulation.apply_controls_batch(controls)
+                    simulation.apply_controls_batch(controls, screen=screen, shape=shape)
                 scores = simulation.get_score_batch()
                 for i in range(len(batch)):
                     batch[i].set_fitness(scores[i])
@@ -130,7 +132,7 @@ class Population:
             for specie in self.species:
                 specie.run(simulation, conditions, first_batch_id=batch_id)
                 batch_id += len(specie.genomes)
-        self.update_fitness()
+        self.update_fitness(conditions)
 
     def next_stagnant(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """
@@ -193,10 +195,12 @@ class Population:
             self.species.remove(specie)
         return empty_species
 
-    def update_fitness(self):
+    def update_fitness(self, conditions:Conditions):
         """
         Updates the max fitness of the population
         """
+        for specie in self.species:
+            specie.update_fitness(conditions)
         max_fitness = max(list(map(lambda specie: specie.max_fitness, self.species)))
 
         if self.max_fitness is None or max_fitness > self.max_fitness:
@@ -229,9 +233,10 @@ class Population:
 
         return Population(species, age, max_fitness)
 
-    def draw_population(self, screen: pygame.Surface, shape=None, delay=1000):
+    def draw_population(self, screen: pygame.Surface, shape=None, delay=100):
+        screen.fill((100,100,100))
         genomes: List[Genome] = self.get_genomes()
-        genomes.sort(key=lambda genome:len(genome.genes), reverse=True)
+        # genomes.sort(key=lambda genome:len(genome.genes), reverse=True)
         height = math.ceil(math.sqrt(len(genomes)))
         width = math.floor(math.sqrt(len(genomes)))
         count = 0

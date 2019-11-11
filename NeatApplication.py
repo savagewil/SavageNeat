@@ -115,41 +115,23 @@ class NeatApplication:
                   max(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
             print("Min Genes",
                   min(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
-
-        next_gen = self.current_generation.next(self.conditions)
-        self.past.insert(0, next_gen)
-        self.current_generation = next_gen
         if verbosity > 0:
-            print(self.current_generation.get_score(),
+            print(self.current_generation.get_score(self.conditions),
                   sum(list(map(lambda genome: genome.raw_fitness,
                                self.current_generation.population.get_genomes()))) / self.conditions.population_size)
-            # if self.screen:
-                # self.screen.fill([50, 0, 0])
-                # genomes = self.current_generation.population.get_genomes()
-                # height = math.ceil(math.sqrt(len(genomes)))
-                # width = math.floor(math.sqrt(len(genomes)))
-                # count = 0
-                # for genome in genomes:
-                #
-                #     genome.network.neural_net.update(self.screen,
-                #                                      int((800 / width) * (count % width)),
-                #                                      int((800 / height) * (count // width)),
-                #                                      int((800 / width)),
-                #                                      int((800 / height)))
-                #     genome.network.neural_net.draw()
-                #     count += 1
-                # pygame.display.flip()
-                # pygame.time.delay(500)
-                # events = pygame.event.get()
 
-            print(self.current_generation.get_score())
+            print(self.current_generation.get_score(self.conditions))
             LOG_FILE = open("scores.csv", 'a')
             LOG_FILE.write("%d,%f,%f\n" % (self.current_generation.generation,
-                                           self.current_generation.get_score(),
+                                           self.current_generation.get_score(self.conditions),
                                            sum(list(map(lambda genome: genome.raw_fitness,
                                                         self.current_generation.population.get_genomes()))) /
                                            self.conditions.population_size))
             LOG_FILE.close()
+
+        next_gen = self.current_generation.next(self.conditions)
+        self.past.insert(0, next_gen)
+        self.current_generation = next_gen
 
     def save(self, file_path):
         save_string = ""

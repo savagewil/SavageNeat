@@ -147,6 +147,7 @@ class Genome:
         :return: A new genome created by breeding the two given genomes
         :param conditions: The conditions the breeding is occuring in, controls the rate of being disabled
         """
+        # print("BREEDING", self)
         self_index = 0
         other_index = 0
         new_genes = []
@@ -154,9 +155,14 @@ class Genome:
             if self.genes[self_index] == other.genes[other_index]:
                 new_gene = self.genes[self_index].copy()
                 new_gene.weight = random.choice([self.genes[self_index].weight, other.genes[other_index].weight])
-                new_gene.enabled = ((self.genes[self_index].enabled and other.genes[other_index].enabled) or
+                new_gene.enabled = ((self.genes[self_index].enabled or other.genes[other_index].enabled) or
                                     random.random() > conditions.genome_disable_probability)
                 new_genes.append(new_gene)
+                # if not new_gene.enabled:
+                #     print("DISABLED GENE both")
+                #     print(new_gene)
+                #     print(self.genes[self_index])
+                #     print(other.genes[other_index])
                 self_index += 1
                 other_index += 1
             elif self.genes[self_index] < other.genes[other_index]:
@@ -165,14 +171,23 @@ class Genome:
                     new_gene.enabled = (self.genes[self_index].enabled or
                                         random.random() > conditions.genome_disable_probability)
                     new_genes.append(new_gene)
+                    # if not new_gene.enabled:
+                    #     print("DISABLED GENE self")
+                    #     print(new_gene)
+                    #     print(self.genes[self_index])
                 self_index += 1
             else:
                 if self.raw_fitness <= other.raw_fitness:
                     new_gene = other.genes[other_index].copy()
-                    new_gene.enabled = (other.genes[other_index] .enabled or
+                    new_gene.enabled = (other.genes[other_index].enabled or
                                         random.random() > conditions.genome_disable_probability)
                     new_genes.append(new_gene)
+                    # if not new_gene.enabled:
+                    #     print("DISABLED GENE other")
+                    #     print(new_gene)
+                    #     print(other.genes[other_index])
                 other_index += 1
+
 
         for i in range(len(new_genes)):
             new_genes[i] = new_genes[i].mutate(conditions)

@@ -42,12 +42,12 @@ class Generation:
         """
         self.population.run(simulation, conditions, batched, batch_size, screen, shape)
 
-    def get_score(self) -> float:
+    def get_score(self, conditions:Conditions) -> float:
         """
         Returns the highest score in the population
         :return: The highest score in the population
         """
-        self.population.update_fitness()
+        self.population.update_fitness(conditions)
         return self.population.max_fitness
 
     def get_best(self) -> Genome:

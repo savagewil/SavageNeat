@@ -72,9 +72,9 @@ class Specie:
         :param conditions: The conditions to use to reproduce
         :return: a list of new genomes
         """
-        if len(self.genomes) > count:
-            self.genomes.sort()
-            species_genomes = self.genomes[:count]
+        self.genomes.sort(reverse=True)
+        if len(self.genomes) > count//2:
+            species_genomes = self.genomes[:count//2]
         else:
             species_genomes = self.genomes
 
@@ -95,7 +95,8 @@ class Specie:
                 new_genome = mother_genome.breed(father_genome, gene_pool, conditions)
             new_genomes.append(new_genome)
         if conditions.species_keep_champion and conditions.species_champion_limit < len(self.genomes):
-            new_genomes.append(species_genomes[0])
+            new_genomes.append(max(species_genomes))
+            # print("CHAMPION", (max(species_genomes)))
 
         return new_genomes
 
@@ -137,6 +138,7 @@ class Specie:
         for genome in self.genomes:
             niche_sum += genome.raw_fitness
             max_fitness = max(max_fitness, genome.raw_fitness)
+            print(genome.raw_fitness)
         if self.max_fitness is None or max_fitness > self.max_fitness:
             self.max_fitness = max_fitness
             self.age = 0
@@ -146,12 +148,6 @@ class Specie:
             self.niche_fitness = niche_sum
 
     def __str__(self) -> str:
-
-        self.representative = representative
-        self.genomes = genomes if genomes else []
-        self.age = age
-        self.max_fitness = max_fitness
-        self.niche_fitness = 0
 
         save_string = ""
         save_string += surround_tag("representative", str(self.representative))
