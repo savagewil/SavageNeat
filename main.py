@@ -2,9 +2,15 @@ from NeatApplication import NeatApplication
 from Conditions import Conditions
 from Simulations.EqualSimulation import EqualSimulation
 from Simulations.XorSimulation import XorSimulation
+import pygame
+
+screen_shape = (1600, 800)
+pygame.init()
+pygame.key.set_repeat(50, 10)
+screen = pygame.display.set_mode(screen_shape)
 
 if __name__ == '__main__':
-    Population = 500
+    Population = 100
     conditions = Conditions(
         gene_weight_probability=0.8,
         gene_random_probability=0.1,
@@ -30,7 +36,7 @@ if __name__ == '__main__':
         app_start_node_depth=0,
         app_end_node_depth=100)
 
-    sim = EqualSimulation(batch_size=Population)
-    app = NeatApplication(conditions, sim)
+    sim = XorSimulation(batch_size=Population)
+    app = NeatApplication(conditions, sim, screen=screen)
 
-    app.main(time=100, batched=True, batch_size=Population, verbosity=2)
+    app.main(time=100, batched=True, batch_size=Population, verbosity=2, shape=(0, 0, screen_shape[0], screen_shape[1]))

@@ -29,15 +29,18 @@ class Generation:
         new_gene_pool = self.gene_pool.next()
         return Generation(self.generation + 1, new_population, new_gene_pool)
 
-    def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None):
+    def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False,
+            batch_size: int = None, screen=None, shape=None):
         """
         Runs a simulation on every member of the population
         :param batched: If false run sim separately on each genome, if true run them as groups
         :param batch_size: The size of the batches to run, if None, then the batch will be the size of all the genomes
         :param simulation: The simulation to run
         :param conditions: The conditions to use when running the simulation
+        :param shape: The shape to draw the population on
+        :param screen: The screen to draw on
         """
-        self.population.run(simulation, conditions, batched, batch_size)
+        self.population.run(simulation, conditions, batched, batch_size, screen, shape)
 
     def get_score(self) -> float:
         """

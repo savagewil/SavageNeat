@@ -1,5 +1,5 @@
-from __future__ import annotations
-
+# from __future__ import
+import math
 import random
 from typing import List
 
@@ -11,10 +11,10 @@ from Genome import Genome
 from Population import Population
 from Simulation import Simulation
 from functions import surround_tag, remove_tag
-
+import pygame
 
 class NeatApplication:
-    def __init__(self, conditions: Conditions, simulation: Simulation, load_file=None):
+    def __init__(self, conditions: Conditions, simulation: Simulation, load_file=None, screen=None):
         """
         The Neat Application runs the Neat algorithm on a simulation, using the given conditions
         :param conditions: The conditions to use when running the algorithm
@@ -24,6 +24,7 @@ class NeatApplication:
         self.simulation: Simulation = simulation
         self.conditions: Conditions = conditions
         self.past: List[Generation] = []
+        self.screen = screen
         if load_file is None:
             gene_pool = GenePool(0, simulation.get_data_size() + 1, {})
             genomes = self.start_genomes(gene_pool, conditions)
@@ -68,7 +69,7 @@ class NeatApplication:
 
         return starter_genomes
 
-    def run(self, batched=False, batch_size=None, verbosity=0):
+    def run(self, batched=False, batch_size=None, verbosity=0, shape=None):
         if verbosity > 0:
             print(" ======== Starting Generation %d ======== " % self.current_generation.generation)
             print("Species Count: %d" % len(self.current_generation.population.species))
@@ -101,7 +102,7 @@ class NeatApplication:
                             print("Gene", gene.in_node, gene.out_node, gene.weight)
 
         self.simulation.restart()
-        self.current_generation.run(self.simulation, self.conditions, batched, batch_size)
+        self.current_generation.run(self.simulation, self.conditions, batched, batch_size, self.screen, shape)
         if verbosity > 1:
             print("Sum Genes",
                   sum(list(map(lambda genome: len(genome.genes), self.current_generation.population.get_genomes()))))
@@ -122,6 +123,25 @@ class NeatApplication:
             print(self.current_generation.get_score(),
                   sum(list(map(lambda genome: genome.raw_fitness,
                                self.current_generation.population.get_genomes()))) / self.conditions.population_size)
+            # if self.screen:
+                # self.screen.fill([50, 0, 0])
+                # genomes = self.current_generation.population.get_genomes()
+                # height = math.ceil(math.sqrt(len(genomes)))
+                # width = math.floor(math.sqrt(len(genomes)))
+                # count = 0
+                # for genome in genomes:
+                #
+                #     genome.network.neural_net.update(self.screen,
+                #                                      int((800 / width) * (count % width)),
+                #                                      int((800 / height) * (count // width)),
+                #                                      int((800 / width)),
+                #                                      int((800 / height)))
+                #     genome.network.neural_net.draw()
+                #     count += 1
+                # pygame.display.flip()
+                # pygame.time.delay(500)
+                # events = pygame.event.get()
+
             print(self.current_generation.get_score())
             LOG_FILE = open("scores.csv", 'a')
             LOG_FILE.write("%d,%f,%f\n" % (self.current_generation.generation,
@@ -133,11 +153,11 @@ class NeatApplication:
 
     def save(self, file_path):
         save_string = ""
-        save_string += surround_tag('current', self.current_generation.save())
+        save_string += surround_tag('current', str(self.current_generation))
 
         past_string = ""
         for generation in self.past:
-            surround_tag("generation", generation.save())
+            surround_tag("generation", str(generation))
 
         save_string += surround_tag("past", past_string)
 
@@ -158,8 +178,8 @@ class NeatApplication:
             self.past.append(Generation.load(past_gen))
             past_gen, load_string = remove_tag('generation', load_string)
 
-    def main(self, time=None, batched=False, batch_size=None, verbosity=0):
+    def main(self, time=None, batched=False, batch_size=None, verbosity=0, shape=None):
         while time is None or time > 0:
             if time is not None:
                 time -= 1
-            self.run(verbosity=verbosity, batched=batched, batch_size=batch_size)
+            self.run(verbosity=verbosity, batched=batched, batch_size=batch_size, shape=shape)

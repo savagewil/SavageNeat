@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import math
 import random
 from typing import List
+
+import pygame
 
 import formulas
 from Conditions import Conditions
@@ -79,14 +82,17 @@ class Population:
         """
         self.species.append(species)
 
-    def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None):
+    def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None,
+            screen: pygame.Surface = None, shape=None):
         """
         Runs a simulation on every member of the population
+        :param screen:
         :param batched: If false run sim separately on each genome, if true run them as groups
         :param batch_size: The size of the batches to run, if None, then the batch will be the size of all the genomes
         :param simulation: The simulation to run
         :param conditions: The conditions to use when running the simulation
         """
+        print(screen, shape)
         if batched:
             genomes = self.get_genomes()
             batches = []
@@ -109,7 +115,8 @@ class Population:
                             controls.append(control)
                         else:
                             controls.append([0.0] * simulation.get_controls_size())
-
+                    if screen and shape:
+                        self.draw_population(screen, shape)
                     simulation.apply_controls_batch(controls)
                 scores = simulation.get_score_batch()
                 for i in range(len(batch)):
@@ -221,3 +228,24 @@ class Population:
             species.append(specie)
 
         return Population(species, age, max_fitness)
+
+    def draw_population(self, screen: pygame.Surface, shape=None, delay=1000):
+        genomes: List[Genome] = self.get_genomes()
+        genomes.sort(key=lambda genome:len(genome.genes), reverse=True)
+        height = math.ceil(math.sqrt(len(genomes)))
+        width = math.floor(math.sqrt(len(genomes)))
+        count = 0
+        for genome in genomes:
+            genome.network.neural_net.update(screen,
+                                             int((shape[2] / width) * (count % width)) + shape[0],
+                                             int((shape[3] / height) * (count // width)) + shape[1],
+                                             int((shape[2] / width) / 2),
+                                             int((shape[3] / height)))
+            genome.network.neural_net.draw()
+            count += 1
+        pygame.display.flip()
+        pygame.time.delay(delay)
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                raise InterruptedError

@@ -1,5 +1,7 @@
 from typing import Tuple, List
 
+import pygame
+
 from Simulation import Simulation, SimulationState
 import numpy
 
@@ -11,7 +13,7 @@ def get_xor_args(number) -> Tuple[float, float, float]:
 class XorSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 20):
+                 limit: int = 4):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
@@ -139,12 +141,18 @@ class XorSimulation(Simulation):
         expected = numpy.array(
             list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
         # print(expected)
-        print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.2f" % cell, row))), self.past))))
+        print("PAST")
+        print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
+        print("REAL SCORE")
         print(" ".join(list(
-            map(lambda col: "%1.5f" % (numpy.sum(numpy.square(col - expected)) / self.limit), self.past.transpose()))))
-        print(" ".join(list(map(lambda col: "%1.2f" % (numpy.sum(numpy.square(numpy.round(col) - expected)) /
+            map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(col - expected)) / self.limit), self.past.transpose()))))
+        print("ROUNDED SCORE")
+        print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
                                                        self.limit), self.past.transpose()))))
-        print(max(list(map(lambda col: (numpy.sum(numpy.square((col > 0.5) - expected)) /
+        print("SCORE")
+        print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / self.time_count))))
+        print("BEST SCORE")
+        print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
                                                        self.limit), self.past.transpose()))))
         self.past = numpy.zeros((self.limit, self.batch_size))
         self.time_count = 0

@@ -71,11 +71,11 @@ class EqualSimulation(Simulation):
         Receives a list of controls to apply to a batch of agents
         :param controls_batch: A list of tuples of floats, representing the controls of many agents
         """
-        self.results = [control[0] for control in controls_batch]
+        self.results = [control for control in controls_batch]
         self.completed = [True for i in range(self.batch_size)]
 
-        inputs = get_args(self.time_count)
-        self.score += [1.0 - (sum([((inputs[j] - self.results[j]) ** 2.0)for j in range(len(inputs))])/4) for result in self.results]
+        inputs = get_args(self.time_count)[:-1]
+        self.score += [1.0 - (sum([((inputs[j] - result[j]) ** 2.0) for j in range(len(inputs))])/4) for result in self.results]
         # print(self.score)
 
         self.next()
