@@ -83,7 +83,7 @@ class Population:
         self.species.append(species)
 
     def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None,
-            screen: pygame.Surface = None, shape=None):
+            screen: pygame.Surface = None, shape=None, delay=500):
         """
         Runs a simulation on every member of the population
         :param screen:
@@ -133,7 +133,7 @@ class Population:
                 batch_id += len(specie.genomes)
         self.update_fitness(conditions)
         if shape and screen:
-            pygame.time.delay(5000)
+            pygame.time.delay(delay)
 
     def next_stagnant(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """
@@ -235,7 +235,7 @@ class Population:
 
         return Population(species, age, max_fitness)
 
-    def draw_population(self, screen: pygame.Surface, shape=None, delay=100):
+    def draw_population(self, screen: pygame.Surface, shape=None, delay=0):
         screen.fill((100,100,100))
         genomes: List[Genome] = self.get_genomes()
         # genomes.sort(key=lambda genome:len(genome.genes), reverse=True)

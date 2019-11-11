@@ -14,13 +14,14 @@ def get_xor_args(number) -> Tuple[float, float, float]:
 class XorSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 4):
+                 limit: int = 4, verbosity=0):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
         :param limit: The limit of the number of times the simulation can be run
         """
         super().__init__(1, 2, False, None, None, batch_size)
+        self.verbosity = verbosity
         self.batch_size = batch_size
         self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
@@ -143,25 +144,26 @@ class XorSimulation(Simulation):
         expected = numpy.array(
             list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
         # print(expected)
-        print("PAST")
-        print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
-        print("REAL SCORE")
-        print(" ".join(list(
-            map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(col - expected)) / self.limit),
-                self.past.transpose()))))
-        print("ROUNDED SCORE")
-        print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
-                                                       self.limit), self.past.transpose()))))
-        print("SCORE")
-        print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / self.time_count))))
-        print("BEST SCORE")
-        print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
-                                        self.limit), self.past.transpose()))))
+        if self.verbosity > 1:
+            print("PAST")
+            print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
+            print("REAL SCORE")
+            print(" ".join(list(
+                map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(col - expected)) / self.limit),
+                    self.past.transpose()))))
+            print("ROUNDED SCORE")
+            print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
+                                                           self.limit), self.past.transpose()))))
+            print("SCORE")
+            print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / self.time_count))))
+            print("BEST SCORE")
+            print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
+                                            self.limit), self.past.transpose()))))
         self.past = numpy.zeros((self.limit, self.batch_size))
         self.time_count = 0
         self.score = numpy.array([0.0 for i in range(self.batch_size)])
 
-    def draw_scores(self, screen: pygame.Surface, shape=None, delay=1000):
+    def draw_scores(self, screen: pygame.Surface, shape=None, delay=0):
         height = math.ceil(math.sqrt(self.batch_size))
         width = math.floor(math.sqrt(self.batch_size))
         count = 0
@@ -169,10 +171,11 @@ class XorSimulation(Simulation):
             text = "%0.3f" % (score)
             font = pygame.font.Font(None, 32)
             design = font.render(text, True, (0, 0, 0))
-            screen.fill((min(255, max(0, int(255 * (1.0 - score)))), min(255, max(0, int(255 * score))), 0), rect=pygame.Rect(
-                int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
-                int((shape[3] / height) * (count // width)) + shape[1],
-                int((shape[2] / width) / 2), int((shape[3] / height))))
+            screen.fill((min(255, max(0, int(255 * (1.0 - score)))), min(255, max(0, int(255 * score))), 0),
+                        rect=pygame.Rect(
+                            int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
+                            int((shape[3] / height) * (count // width)) + shape[1],
+                            int((shape[2] / width) / 2), int((shape[3] / height))))
 
             screen.blit(design,
                         pygame.Rect(int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
