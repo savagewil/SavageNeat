@@ -41,7 +41,9 @@ class Population:
         else:
             genomes = self.get_genomes()
             fit_species = list(filter(lambda specie: specie.fertile(conditions), self.species))
-            assert len(fit_species) > 0
+
+            if len(fit_species) == 0:
+                return self.next_stagnant(conditions, gene_pool)
 
             total_fitness = sum(list(map(lambda specie: specie.niche_fitness, fit_species)))
 

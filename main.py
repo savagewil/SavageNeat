@@ -6,9 +6,9 @@ from Simulations.OrSimulation import OrSimulation
 from Simulations.XorSimulation import XorSimulation
 import pygame
 
-SCREEN_SHAPE = (1600, 800)
+# SCREEN_SHAPE = (1600, 800)
 
-# SCREEN_SHAPE = None
+SCREEN_SHAPE = None
 if __name__ == '__main__':
     screen = None
     shape = None
