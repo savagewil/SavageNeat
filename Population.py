@@ -94,7 +94,6 @@ class Population:
         """
         if shape and screen:
             print(screen, shape)
-            pygame.time.delay(5000)
         if batched:
             genomes = self.get_genomes()
             batches = []
@@ -133,6 +132,8 @@ class Population:
                 specie.run(simulation, conditions, first_batch_id=batch_id)
                 batch_id += len(specie.genomes)
         self.update_fitness(conditions)
+        if shape and screen:
+            pygame.time.delay(5000)
 
     def next_stagnant(self, conditions: Conditions, gene_pool: GenePool) -> Population:
         """
@@ -199,6 +200,7 @@ class Population:
         """
         Updates the max fitness of the population
         """
+        # print("UPDATING"," ".join(list(map(lambda genome: "%0.4f"%genome.raw_fitness, self.get_genomes()))))
         for specie in self.species:
             specie.update_fitness(conditions)
         max_fitness = max(list(map(lambda specie: specie.max_fitness, self.species)))

@@ -119,18 +119,16 @@ class XorSimulation(Simulation):
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: The score
         """
-        return self.score[batch_id] / (self.time_count+1)
+        return self.score[batch_id] / (self.time_count)
 
     def get_score_batch(self) -> List[float]:
         """
         Gets a list of scores from the current simulation
         :return: The list of scores for all agents in the batch
         """
-        return self.score.copy() / (self.time_count+1)
+        return self.score.copy() / (self.time_count)
 
     def next(self, screen=None, shape=None):
-        if screen and shape:
-            self.draw_scores(screen, shape)
         # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
         # print()
         self.past[self.time_count, :] = self.results
@@ -138,6 +136,8 @@ class XorSimulation(Simulation):
         # print()
         self.time_count += 1
         self.completed = [False for i in range(self.batch_size)]
+        if screen and shape:
+            self.draw_scores(screen, shape)
 
     def restart(self):
         expected = numpy.array(
@@ -165,16 +165,25 @@ class XorSimulation(Simulation):
         height = math.ceil(math.sqrt(self.batch_size))
         width = math.floor(math.sqrt(self.batch_size))
         count = 0
-        for score in self.score:
-            text = "%0.3f" % (score/(self.time_count+1))
+        for score in self.get_score_batch():
+            text = "%0.3f" % (score)
             font = pygame.font.Font(None, 32)
             design = font.render(text, True, (0, 0, 0))
+            screen.fill((min(255, max(0, int(255 * (1.0 - score)))), min(255, max(0, int(255 * score))), 0), rect=pygame.Rect(
+                int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
+                int((shape[3] / height) * (count // width)) + shape[1],
+                int((shape[2] / width) / 2), int((shape[3] / height))))
+
             screen.blit(design,
                         pygame.Rect(int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
-                                    int((shape[3] / height) * (count // width)) + shape[1] + int((shape[3] / height)/2),
+                                    int((shape[3] / height) * (count // width)) + shape[1] + int(
+                                        (shape[3] / height) / 2),
                                     int((shape[2] / width) / 2),
                                     int((shape[3] / height) / 2)))
             count += 1
         pygame.display.flip()
         pygame.time.delay(delay)
         events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                raise InterruptedError

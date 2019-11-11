@@ -3,6 +3,7 @@ class Conditions:
                  genome_disable_probability: float, genome_node_probability: float,
                  genome_connection_probability: float,
                  species_asexual_probability: float, species_interspecies_reproduction_probability: float,
+                 species_keep_ratio: float,
 
                  gene_max_weight: float, gene_min_weight: float, gene_weight_shift: float,
 
@@ -10,11 +11,12 @@ class Conditions:
                  genome_min_divide: int,
 
                  species_age_fertility_limit: int, species_threshold: float,
-                 species_keep_champion: bool, species_champion_limit:int, species_niche_divide_min: int,
+                 species_keep_champion: bool, species_champion_limit: int, species_niche_divide_min: int,
 
                  population_age_limit: int, population_size: int,
 
                  app_start_node_depth: int, app_end_node_depth: int):
+        self.species_keep_ratio: float = species_keep_ratio
         self.gene_weight_probability: float = gene_weight_probability
         self.gene_random_probability: float = gene_random_probability
         self.genome_disable_probability: float = genome_disable_probability
