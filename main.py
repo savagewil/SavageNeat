@@ -5,16 +5,18 @@ from Simulations.EqualSimulation import EqualSimulation
 from Simulations.XorSimulation import XorSimulation
 import pygame
 
-# SCREEN_SHAPE = (1600, 800)
+SCREEN_SHAPE = (1600, 800)
 
-SCREEN_SHAPE = None
+# SCREEN_SHAPE = None
 if __name__ == '__main__':
     screen = None
+    shape = None
     if SCREEN_SHAPE:
-
         pygame.init()
         pygame.key.set_repeat(50, 10)
         screen = pygame.display.set_mode(SCREEN_SHAPE)
+
+        shape = (0, 0, SCREEN_SHAPE[0], SCREEN_SHAPE[1])
 
     Population = 144
     conditions = Conditions(
@@ -43,13 +45,6 @@ if __name__ == '__main__':
         app_start_node_depth=0,
         app_end_node_depth=100)
 
-    sim = XorSimulation(batch_size=Population, verbosity=1)
-    if SCREEN_SHAPE:
-        app = NeatApplication(conditions, sim, screen=screen)
-        app.main(time=500, batched=True, batch_size=Population, verbosity=1,
-                 shape=(0, 0, SCREEN_SHAPE[0], SCREEN_SHAPE[1]))
-
-    else:
-        app = NeatApplication(conditions, sim, screen=screen)
-        app.main(time=500, batched=True, batch_size=Population, verbosity=1)
-
+    sim = AndSimulation(batch_size=Population, screen=screen, shape=shape)
+    app = NeatApplication(conditions, sim, screen=screen)
+    app.main(time=500, batched=True, batch_size=Population, verbosity=1, shape=shape)

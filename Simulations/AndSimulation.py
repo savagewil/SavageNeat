@@ -16,13 +16,13 @@ def and_func(num1, num2):
 class AndSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 4):
+                 limit: int = 4, screen=None, shape=None):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
         :param limit: The limit of the number of times the simulation can be run
         """
-        super().__init__(1, 2, False, None, None, batch_size)
+        super().__init__(1, 2, screen is not None and shape is not None, shape, screen, batch_size)
         self.batch_size = batch_size
         self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
@@ -44,7 +44,7 @@ class AndSimulation(Simulation):
         """
         return 1
 
-    def apply_controls(self, controls: Tuple[float], batch_id: int = None, screen=None, shape=None):
+    def apply_controls(self, controls: Tuple[float], batch_id: int = None):
         """
         Receives an array of values representing the controls
         Uses that array to apply controls and change the simulation
@@ -59,7 +59,7 @@ class AndSimulation(Simulation):
             self.score += [1.0 - ((and_func(inputs[0], inputs[1]) - self.results[i]) ** 2.0) for i in
                            range(self.batch_size)]
 
-            self.next(screen, shape)
+            self.next()
         else:
             self.results[batch_id] = controls[0]
             self.completed[batch_id] = True
@@ -70,7 +70,7 @@ class AndSimulation(Simulation):
             if all(self.completed):
                 self.next()
 
-    def apply_controls_batch(self, controls_batch: List[Tuple[float]], screen=None, shape=None):
+    def apply_controls_batch(self, controls_batch: List[Tuple[float]]):
         """
         Receives a list of controls to apply to a batch of agents
         :param controls_batch: A list of tuples of floats, representing the controls of many agents
@@ -82,7 +82,7 @@ class AndSimulation(Simulation):
         self.score += [1.0 - ((and_func(inputs[0], inputs[1]) - result) ** 2.0) for result in self.results]
         # print(self.score)
 
-        self.next(screen, shape)
+        self.next()
 
     def get_data(self, batch_id: int = None) -> Tuple[float, float, float]:
         """
@@ -130,9 +130,7 @@ class AndSimulation(Simulation):
         """
         return self.score.copy() / (self.time_count)
 
-    def next(self, screen=None, shape=None):
-        if screen and shape:
-            self.draw_scores(screen, shape)
+    def next(self):
         # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
         # print()
         self.past[self.time_count, :] = self.results
@@ -140,6 +138,8 @@ class AndSimulation(Simulation):
         # print()
         self.time_count += 1
         self.completed = [False for i in range(self.batch_size)]
+        if self.screen and self.shape:
+            self.draw_scores()
 
     def restart(self):
         expected = numpy.array(
@@ -162,21 +162,3 @@ class AndSimulation(Simulation):
         self.past = numpy.zeros((self.limit, self.batch_size))
         self.time_count = 0
         self.score = numpy.array([0.0 for i in range(self.batch_size)])
-
-    def draw_scores(self, screen: pygame.Surface, shape=None, delay=1000):
-        height = math.ceil(math.sqrt(self.batch_size))
-        width = math.floor(math.sqrt(self.batch_size))
-        count = 0
-        for score in self.score:
-            text = "%0.3f" % (score/(self.time_count+1))
-            font = pygame.font.Font(None, 32)
-            design = font.render(text, True, (0, 0, 0))
-            screen.blit(design,
-                        pygame.Rect(int((shape[2] / width) * (count % width)) + shape[0] + int((shape[2] / width) / 2),
-                                    int((shape[3] / height) * (count // width)) + shape[1] + int((shape[3] / height)/2),
-                                    int((shape[2] / width) / 2),
-                                    int((shape[3] / height) / 2)))
-            count += 1
-        pygame.display.flip()
-        pygame.time.delay(delay)
-        events = pygame.event.get()

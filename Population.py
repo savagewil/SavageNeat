@@ -118,7 +118,7 @@ class Population:
                             controls.append([0.0] * simulation.get_controls_size())
                     if screen and shape:
                         self.draw_population(screen, shape)
-                    simulation.apply_controls_batch(controls, screen=screen, shape=shape)
+                    simulation.apply_controls_batch(controls)#, screen=screen, shape=shape)
                 scores = simulation.get_score_batch()
                 for i in range(len(batch)):
                     batch[i].set_fitness(scores[i])

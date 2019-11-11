@@ -1,3 +1,4 @@
+import math
 from abc import abstractmethod
 from typing import List, Type, Callable, Tuple
 import Net
@@ -23,7 +24,8 @@ class Simulation:
                  visuals: bool = False,
                  shape: Tuple[int, int, int, int] = None,
                  screen: pygame.Surface = None,
-                 batch_size: int = 1):
+                 batch_size: int = 1,
+                 verbosity: int = 0):
         """
         A class for representing a simulation
         :param controls_size: The length of the controls the simulation will use
@@ -32,7 +34,9 @@ class Simulation:
         :param shape: The area to display the Simulation on a surface, [x, y, width, height
         :param screen: A pygame surface where the Simulation will be displayed
         :param batch_size: The number of agents the simulation can represent in at one time
+        :param verbosity: How "verbal" the simulation should be
         """
+        self.verbosity = verbosity
         self.controls_size = controls_size
         self.data_size = data_size
         self.visuals = visuals
@@ -131,3 +135,32 @@ class Simulation:
         :return: The list of scores for all agents in the batch
         """
         pass
+
+
+    def draw_scores(self, delay=0):
+        height = math.ceil(math.sqrt(self.batch_size))
+        width = math.floor(math.sqrt(self.batch_size))
+        count = 0
+        for score in self.get_score_batch():
+            text = "%0.3f" % (score)
+            font = pygame.font.Font(None, 32)
+            design = font.render(text, True, (0, 0, 0))
+            self.screen.fill((min(255, max(0, int(255 * (1.0 - score)))), min(255, max(0, int(255 * score))), 0),
+                        rect=pygame.Rect(
+                            int((self.shape[2] / width) * (count % width)) + self.shape[0] + int((self.shape[2] / width) / 2),
+                            int((self.shape[3] / height) * (count // width)) + self.shape[1],
+                            int((self.shape[2] / width) / 2), int((self.shape[3] / height))))
+
+            self.screen.blit(design,
+                        pygame.Rect(int((self.shape[2] / width) * (count % width)) + self.shape[0] + int((self.shape[2] / width) / 2),
+                                    int((self.shape[3] / height) * (count // width)) + self.shape[1] + int(
+                                        (self.shape[3] / height) / 2),
+                                    int((self.shape[2] / width) / 2),
+                                    int((self.shape[3] / height) / 2)))
+            count += 1
+        pygame.display.flip()
+        pygame.time.delay(delay)
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                raise InterruptedError
