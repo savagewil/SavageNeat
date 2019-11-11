@@ -10,18 +10,19 @@ import numpy
 def get_xor_args(number) -> Tuple[float, float, float]:
     return float(number % 2.0), float((number // (2.0 ** 1.0)) % 2.0), 1.0
 
+def or_func(num1, num2):
+    return int(num1 == 1 or num2 == 1)
 
-class XorSimulation(Simulation):
+class OrSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 4, verbosity=0, screen=None, shape=None):
+                 limit: int = 4, screen=None, shape=None):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
         :param limit: The limit of the number of times the simulation can be run
         """
         super().__init__(1, 2, screen is not None and shape is not None, shape, screen, batch_size)
-        self.verbosity = verbosity
         self.batch_size = batch_size
         self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
@@ -55,7 +56,7 @@ class XorSimulation(Simulation):
             self.completed = [True for i in range(self.batch_size)]
 
             inputs = get_xor_args(self.time_count)
-            self.score += [1.0 - ((int(inputs[0] != inputs[1]) - self.results[i]) ** 2.0) for i in
+            self.score += [1.0 - ((or_func(inputs[0], inputs[1]) - self.results[i]) ** 2.0) for i in
                            range(self.batch_size)]
 
             self.next()
@@ -64,7 +65,7 @@ class XorSimulation(Simulation):
             self.completed[batch_id] = True
 
             inputs = get_xor_args(self.time_count)
-            self.score[batch_id] += 1.0 - ((int(inputs[0] != inputs[1]) - self.results[batch_id]) ** 2.0)
+            self.score[batch_id] += 1.0 - ((or_func(inputs[0], inputs[1]) - self.results[batch_id]) ** 2.0)
 
             if all(self.completed):
                 self.next()
@@ -78,7 +79,7 @@ class XorSimulation(Simulation):
         self.completed = [True for i in range(self.batch_size)]
 
         inputs = get_xor_args(self.time_count)
-        self.score += [1.0 - ((int(inputs[0] != inputs[1]) - result) ** 2.0) for result in self.results]
+        self.score += [1.0 - ((or_func(inputs[0], inputs[1]) - result) ** 2.0) for result in self.results]
         # print(self.score)
 
         self.next()
@@ -143,8 +144,7 @@ class XorSimulation(Simulation):
     def restart(self):
         if self.verbosity > 1:
             expected = numpy.array(
-                list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
-        # print(expected)
+                list(map(or_func, list(map(get_xor_args, list(range(self.limit)))))))
             print("PAST")
             print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
             print("REAL SCORE")
@@ -155,7 +155,7 @@ class XorSimulation(Simulation):
             print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
                                                            self.limit), self.past.transpose()))))
             print("SCORE")
-            print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / self.time_count))))
+            print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / (self.time_count)))))
             print("BEST SCORE")
             print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
                                             self.limit), self.past.transpose()))))

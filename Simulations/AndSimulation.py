@@ -142,23 +142,23 @@ class AndSimulation(Simulation):
             self.draw_scores()
 
     def restart(self):
-        expected = numpy.array(
-            list(map(lambda inputs: int(inputs[0] == 1 and inputs[1] == 1), list(map(get_xor_args, list(range(self.limit)))))))
-        # print(expected)
-        print("PAST")
-        print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
-        print("REAL SCORE")
-        print(" ".join(list(
-            map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(col - expected)) / self.limit),
-                self.past.transpose()))))
-        print("ROUNDED SCORE")
-        print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
-                                                       self.limit), self.past.transpose()))))
-        print("SCORE")
-        print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / (self.time_count)))))
-        print("BEST SCORE")
-        print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
-                                        self.limit), self.past.transpose()))))
+        if self.verbosity > 1:
+            expected = numpy.array(
+                list(map(and_func, list(map(get_xor_args, list(range(self.limit)))))))
+            print("PAST")
+            print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
+            print("REAL SCORE")
+            print(" ".join(list(
+                map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(col - expected)) / self.limit),
+                    self.past.transpose()))))
+            print("ROUNDED SCORE")
+            print(" ".join(list(map(lambda col: "%1.4f" % (numpy.sum(1.0 - numpy.square(numpy.round(col) - expected)) /
+                                                           self.limit), self.past.transpose()))))
+            print("SCORE")
+            print(" ".join(list(map(lambda val: "%1.4f" % (val), self.score / (self.time_count)))))
+            print("BEST SCORE")
+            print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
+                                            self.limit), self.past.transpose()))))
         self.past = numpy.zeros((self.limit, self.batch_size))
         self.time_count = 0
         self.score = numpy.array([0.0 for i in range(self.batch_size)])
