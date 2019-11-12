@@ -2,6 +2,7 @@ from NeatApplication import NeatApplication
 from Conditions import Conditions
 from Simulations.AndSimulation import AndSimulation
 from Simulations.EqualSimulation import EqualSimulation
+from Simulations.MultiplySimulation import MultiplySimulation
 from Simulations.OrSimulation import OrSimulation
 from Simulations.XorSimulation import XorSimulation
 import pygame
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 
         shape = (0, 0, SCREEN_SHAPE[0], SCREEN_SHAPE[1])
 
-    Population = 144
+    Population = 400
     conditions = Conditions(
         gene_weight_probability=0.8,
         gene_random_probability=0.1,
@@ -46,6 +47,6 @@ if __name__ == '__main__':
         app_start_node_depth=0,
         app_end_node_depth=100)
 
-    sim = XorSimulation(batch_size=Population, screen=screen, shape=shape)
+    sim = MultiplySimulation(batch_size=Population, screen=screen, shape=shape)
     app = NeatApplication(conditions, sim, screen=screen)
     app.main(time=500, batched=True, batch_size=Population, verbosity=1, shape=shape)
