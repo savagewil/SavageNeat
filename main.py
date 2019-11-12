@@ -46,6 +46,6 @@ if __name__ == '__main__':
         app_start_node_depth=0,
         app_end_node_depth=100)
 
-    sim = OrSimulation(batch_size=Population, screen=screen, shape=shape)
+    sim = XorSimulation(batch_size=Population, screen=screen, shape=shape)
     app = NeatApplication(conditions, sim, screen=screen)
     app.main(time=500, batched=True, batch_size=Population, verbosity=1, shape=shape)

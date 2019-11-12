@@ -83,7 +83,7 @@ class Population:
         self.species.append(species)
 
     def run(self, simulation: Simulation, conditions: Conditions, batched: bool = False, batch_size: int = None,
-            screen: pygame.Surface = None, shape=None, delay=500):
+            screen: pygame.Surface = None, shape=None, delay=1000):
         """
         Runs a simulation on every member of the population
         :param screen:
