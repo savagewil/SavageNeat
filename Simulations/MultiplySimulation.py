@@ -6,16 +6,19 @@ import pygame
 from Simulation import Simulation, SimulationState
 import numpy
 
+
 def number_to_digits(number, digit_count) -> List[float]:
     return [(number // (2.0) ** i) % 2.0 for i in range(digit_count)]
+
 
 def digits_to_number(digits) -> int:
     return sum([(digits[i] * (2.0) ** i) for i in range(len(digits))])
 
+
 class MultiplySimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
-                 limit: int = 4, verbosity=0, screen=None, shape=None, digits=5):
+                 limit: int = 256, verbosity=0, screen=None, shape=None, digits=4):
         """
         A class for representing a simulation of xor
         :param batch_size: The number of agents the simulation can represent in at one time
@@ -26,10 +29,10 @@ class MultiplySimulation(Simulation):
         self.batch_size = batch_size
         self.score = numpy.array([0.0 for i in range(batch_size)])
         self.results = [0 for i in range(batch_size)]
-        self.past = numpy.zeros((limit, batch_size))
+        self.past = numpy.zeros((limit, batch_size, digits * 2))
         self.completed = [False for i in range(batch_size)]
         self.limit = limit
-        self.digits = 5
+        self.digits = digits
 
     def get_data_size(self) -> int:
         """
@@ -43,7 +46,8 @@ class MultiplySimulation(Simulation):
         Get the size of the controls the simulation can receive
         :return: The length of the controls array
         """
-        return self.digits*2
+        return self.digits * 2
+
     def apply_controls(self, controls: Tuple[float], batch_id: int = None):
         """
         Receives an array of values representing the controls
@@ -55,25 +59,26 @@ class MultiplySimulation(Simulation):
             self.results = [controls for i in range(self.batch_size)]
             self.completed = [True for i in range(self.batch_size)]
 
-            binary = tuple(number_to_digits(self.time_count, self.digits*2))
+            binary = tuple(number_to_digits(self.time_count, self.digits * 2))
             n1 = digits_to_number(binary[:self.digits])
             n2 = digits_to_number(binary[self.digits:])
-            inputs = number_to_digits(n1 * n2, self.digits*2)
+            inputs = number_to_digits(n1 * n2, self.digits * 2)
 
             self.score += [sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
-                       for result in self.results]
+                           for result in self.results]
 
             self.next()
         else:
-            self.results[batch_id] = controls[0]
+            self.results[batch_id] = controls
             self.completed[batch_id] = True
 
-            binary = tuple(number_to_digits(self.time_count, self.digits*2))
+            binary = tuple(number_to_digits(self.time_count, self.digits * 2))
             n1 = digits_to_number(binary[:self.digits])
             n2 = digits_to_number(binary[self.digits:])
-            inputs = number_to_digits(n1 * n2, self.digits*2)
+            inputs = number_to_digits(n1 * n2, self.digits * 2)
 
-            self.score[batch_id] += sum([1.0 - ((inputs[i] - self.results[batch_id][i]) ** 2.0) for i in range(len(inputs))])
+            self.score[batch_id] += sum(
+                [1.0 - ((inputs[i] - self.results[batch_id][i]) ** 2.0) for i in range(len(inputs))])
 
             if all(self.completed):
                 self.next()
@@ -86,10 +91,10 @@ class MultiplySimulation(Simulation):
         self.results = [control for control in controls_batch]
         self.completed = [True for i in range(self.batch_size)]
 
-        binary = tuple(number_to_digits(self.time_count, self.digits*2))
+        binary = tuple(number_to_digits(self.time_count, self.digits * 2))
         n1 = digits_to_number(binary[:self.digits])
         n2 = digits_to_number(binary[self.digits:])
-        inputs = number_to_digits(n1 * n2, self.digits*2)
+        inputs = number_to_digits(n1 * n2, self.digits * 2)
 
         self.score += [sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
                        for result in self.results]
@@ -103,15 +108,14 @@ class MultiplySimulation(Simulation):
         :param batch_id: The ID of the agent if the simulation uses batches
         :return: a tuple of floats representing the data that the simulation provides to outside agents
         """
-        return tuple(number_to_digits(self.time_count, self.digits*2) + [1])
-
+        return tuple(number_to_digits(self.time_count, self.digits * 2) + [1])
 
     def get_data_batch(self) -> List[Tuple[float, ...]]:
         """
         Gets the list of data tuples for all the agents
         :return: a list of tuples of floats representing the data that the simulation provides to a batch of agents
         """
-        return [tuple(number_to_digits(self.time_count, self.digits*2) + [1])] * self.batch_size
+        return [tuple(number_to_digits(self.time_count, self.digits * 2) + [1])] * self.batch_size
 
     def get_state(self, batch_id: int = None) -> SimulationState:
         """
@@ -147,7 +151,7 @@ class MultiplySimulation(Simulation):
     def next(self):
         # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
         # print()
-        self.past[self.time_count, :] = self.results
+        self.past[self.time_count, :, :] = numpy.array(self.results)
         # print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.0f"%round(cell), row))), self.past[:self.time_count+1]))))
         # print()
         self.time_count += 1
@@ -159,7 +163,7 @@ class MultiplySimulation(Simulation):
         if self.verbosity > 1:
             expected = numpy.array(
                 list(map(lambda inputs: int(inputs[0] != inputs[1]), list(map(get_xor_args, list(range(self.limit)))))))
-        # print(expected)
+            # print(expected)
             print("PAST")
             print("\n".join(list(map(lambda row: " ".join(list(map(lambda cell: "%1.4f" % cell, row))), self.past))))
             print("REAL SCORE")
@@ -174,6 +178,6 @@ class MultiplySimulation(Simulation):
             print("BEST SCORE")
             print(max(list(map(lambda col: (numpy.sum(1.0 - numpy.square((col > 0.5) - expected)) /
                                             self.limit), self.past.transpose()))))
-        self.past = numpy.zeros((self.limit, self.batch_size))
+        self.past = numpy.zeros((self.limit, self.batch_size, self.digits * 2))
         self.time_count = 0
         self.score = numpy.array([0.0 for i in range(self.batch_size)])
