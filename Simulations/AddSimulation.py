@@ -15,7 +15,7 @@ def digits_to_number(digits) -> int:
     return sum([(digits[i] * (2.0) ** i) for i in range(len(digits))])
 
 
-class MultiplySimulation(Simulation):
+class AddSimulation(Simulation):
 
     def __init__(self, batch_size: int = 1,
                  limit: int = 256, verbosity=0, screen=None, shape=None, digits=1):
@@ -62,7 +62,7 @@ class MultiplySimulation(Simulation):
             binary = tuple(number_to_digits(self.time_count, self.digits * 2))
             n1 = digits_to_number(binary[:self.digits])
             n2 = digits_to_number(binary[self.digits:])
-            inputs = number_to_digits(n1 * n2, self.digits * 2)
+            inputs = number_to_digits(n1 + n2, self.digits * 2)
 
             self.score += [sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
                            for result in self.results]
@@ -75,7 +75,7 @@ class MultiplySimulation(Simulation):
             binary = tuple(number_to_digits(self.time_count, self.digits * 2))
             n1 = digits_to_number(binary[:self.digits])
             n2 = digits_to_number(binary[self.digits:])
-            inputs = number_to_digits(n1 * n2, self.digits * 2)
+            inputs = number_to_digits(n1 + n2, self.digits * 2)
 
             self.score[batch_id] += sum(
                 [1.0 - ((inputs[i] - self.results[batch_id][i]) ** 2.0) for i in range(len(inputs))])
@@ -94,11 +94,11 @@ class MultiplySimulation(Simulation):
         binary = tuple(number_to_digits(self.time_count, self.digits * 2))
         n1 = digits_to_number(binary[:self.digits])
         n2 = digits_to_number(binary[self.digits:])
-        inputs = number_to_digits(n1 * n2, self.digits * 2)
-        print(inputs)
-        print(self.results)
-        print([sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
-                       for result in self.results])
+        inputs = number_to_digits(n1 + n2, self.digits * 2)
+        # print(inputs)
+        # print(self.results)
+        # print([sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
+        #                for result in self.results])
 
         self.score += [sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
                        for result in self.results]

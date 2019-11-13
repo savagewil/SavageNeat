@@ -1,6 +1,7 @@
 # from __future__ import
 import math
 import random
+from time import time
 from typing import List
 
 from Conditions import Conditions
@@ -12,6 +13,7 @@ from Population import Population
 from Simulation import Simulation
 from functions import surround_tag, remove_tag
 import pygame
+
 
 class NeatApplication:
     def __init__(self, conditions: Conditions, simulation: Simulation, load_file=None, screen=None):
@@ -25,6 +27,7 @@ class NeatApplication:
         self.conditions: Conditions = conditions
         self.past: List[Generation] = []
         self.screen = screen
+        self.log_file = "scores/score_%d.csv" % time()
         if load_file is None:
             gene_pool = GenePool(0, simulation.get_data_size() + 1, {})
             genomes = self.start_genomes(gene_pool, conditions)
@@ -121,7 +124,7 @@ class NeatApplication:
                                self.current_generation.population.get_genomes()))) / self.conditions.population_size)
 
             print(self.current_generation.get_score(self.conditions))
-            LOG_FILE = open("scores.csv", 'a')
+            LOG_FILE = open(self.log_file, 'a')
             LOG_FILE.write("%d,%f,%f\n" % (self.current_generation.generation,
                                            self.current_generation.get_score(self.conditions),
                                            sum(list(map(lambda genome: genome.raw_fitness,

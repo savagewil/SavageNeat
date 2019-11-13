@@ -137,7 +137,7 @@ class Simulation:
         pass
 
 
-    def draw_scores(self, delay=100):
+    def draw_scores(self, delay=0):
         height = math.ceil(math.sqrt(self.batch_size))
         width = math.floor(math.sqrt(self.batch_size))
         count = 0
