@@ -136,27 +136,38 @@ class Simulation:
         """
         pass
 
+    def next(self):
+        """
+        Moves to the next step in the simulation
+        """
+        self.time_count += 1
 
     def draw_scores(self, delay=0):
+        """
+        Draws the scores on the screen
+        :param delay: The delay after displaying the score
+        """
         height = math.ceil(math.sqrt(self.batch_size))
         width = math.floor(math.sqrt(self.batch_size))
         count = 0
         for score in self.get_score_batch():
-            text = "%0.3f" % (score)
+            text = "%0.3f" % score
             font = pygame.font.Font(None, 32)
             design = font.render(text, True, (0, 0, 0))
             self.screen.fill((min(255, max(0, int(255 * (1.0 - score)))), min(255, max(0, int(255 * score))), 0),
-                        rect=pygame.Rect(
-                            int((self.shape[2] / width) * (count % width)) + self.shape[0] + int((self.shape[2] / width) / 2),
-                            int((self.shape[3] / height) * (count // width)) + self.shape[1],
-                            int((self.shape[2] / width) / 2), int((self.shape[3] / height))))
+                             rect=pygame.Rect(
+                                 int((self.shape[2] / width) * (count % width)) + self.shape[0] + int(
+                                     (self.shape[2] / width) / 2),
+                                 int((self.shape[3] / height) * (count // width)) + self.shape[1],
+                                 int((self.shape[2] / width) / 2), int((self.shape[3] / height))))
 
             self.screen.blit(design,
-                        pygame.Rect(int((self.shape[2] / width) * (count % width)) + self.shape[0] + int((self.shape[2] / width) / 2),
-                                    int((self.shape[3] / height) * (count // width)) + self.shape[1] + int(
-                                        (self.shape[3] / height) / 2),
-                                    int((self.shape[2] / width) / 2),
-                                    int((self.shape[3] / height) / 2)))
+                             pygame.Rect(int((self.shape[2] / width) * (count % width)) + self.shape[0] + int(
+                                 (self.shape[2] / width) / 2),
+                                         int((self.shape[3] / height) * (count // width)) + self.shape[1] + int(
+                                             (self.shape[3] / height) / 2),
+                                         int((self.shape[2] / width) / 2),
+                                         int((self.shape[3] / height) / 2)))
             count += 1
         pygame.display.flip()
         pygame.time.delay(delay)

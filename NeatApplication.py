@@ -124,12 +124,14 @@ class NeatApplication:
                                self.current_generation.population.get_genomes()))) / self.conditions.population_size)
 
             print(self.current_generation.get_score(self.conditions))
+            print(self.current_generation.get_best().raw_fitness)
             LOG_FILE = open(self.log_file, 'a')
-            LOG_FILE.write("%d,%f,%f\n" % (self.current_generation.generation,
-                                           self.current_generation.get_score(self.conditions),
-                                           sum(list(map(lambda genome: genome.raw_fitness,
-                                                        self.current_generation.population.get_genomes()))) /
-                                           self.conditions.population_size))
+            LOG_FILE.write("%d,%f,%f,%f\n" % (self.current_generation.generation,
+                                              self.current_generation.get_best().raw_fitness,
+                                              self.current_generation.get_score(self.conditions),
+                                              sum(list(map(lambda genome: genome.raw_fitness,
+                                                           self.current_generation.population.get_genomes()))) /
+                                              self.conditions.population_size))
             LOG_FILE.close()
 
         next_gen = self.current_generation.next(self.conditions)

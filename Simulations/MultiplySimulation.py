@@ -95,10 +95,10 @@ class MultiplySimulation(Simulation):
         n1 = digits_to_number(binary[:self.digits])
         n2 = digits_to_number(binary[self.digits:])
         inputs = number_to_digits(n1 * n2, self.digits * 2)
-        print(inputs)
-        print(self.results)
-        print([sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
-                       for result in self.results])
+        # print(inputs)
+        # print(self.results)
+        # print([sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
+        #                for result in self.results])
 
         self.score += [sum([1.0 - ((inputs[i] - result[i]) ** 2.0) for i in range(len(inputs))])
                        for result in self.results]
